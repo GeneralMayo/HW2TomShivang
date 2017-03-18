@@ -1,0 +1,20 @@
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# enironment 
+HW2env/
+env_HW2/
+deeprl_hw2_src/DeepRL_Homework_2.egg-info/
+
+# python version location
+.Python
+
+#example codes
+src/
