@@ -67,7 +67,7 @@ class DQNAgent:
         keras.optimizers.Optimizer class. Specifically the Adam
         optimizer.
         """
-        pass
+        #model.compile(loss_func,optimizer)
 
     def calc_q_values(self, state):
         """Given a state (or batch of states) calculate the Q-values.

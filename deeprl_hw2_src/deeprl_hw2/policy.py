@@ -92,7 +92,9 @@ class GreedyEpsilonPolicy(Policy):
      over time.
     """
     def __init__(self, epsilon):
-        pass
+        assert epsilon > 0
+        assert 1 > epsilon
+        self.epsilon = epsilon
 
     def select_action(self, q_values, **kwargs):
         """Run Greedy-Epsilon for the given Q-values.
@@ -108,8 +110,11 @@ class GreedyEpsilonPolicy(Policy):
         int:
           The action index chosen.
         """
-
-    pass
+        if(self.epsilon>np.random.rand()):
+            return np.random.randint(0, len(q_values))
+        else:
+            return np.argmax(q_values)
+    
 
 
 class LinearDecayGreedyEpsilonPolicy(Policy):
@@ -131,7 +136,18 @@ class LinearDecayGreedyEpsilonPolicy(Policy):
 
     def __init__(self, policy, attr_name, start_value, end_value,
                  num_steps):  # noqa: D102
-        pass
+        assert num_steps > 0
+        assert end_value <= start_value
+        assert start_value >= 0
+        assert start_value <= 1
+        assert end_value >= 0
+        assert end_value <= 1
+
+        self.attr_name = attr_name
+        self.start_value = start_value
+        self.end_value = end_value
+        self.num_steps = num_steps
+        self.cur_steps = 0
 
     def select_action(self, **kwargs):
         """Decay parameter and select action.
@@ -148,8 +164,21 @@ class LinearDecayGreedyEpsilonPolicy(Policy):
         Any:
           Selected action.
         """
-        pass
+        #calculate epsilon
+        if(self.cur_steps >= self.num_steps):
+            epsilon = end_value
+        else:
+            epsilon = self.start_value + ((self.num_steps - self.cur_steps)/float(self.num_steps))*(self.end_value-self.start_value)
+
+        self.cur_steps +=1
+
+        if(epsilon>np.random.rand()):
+            return np.random.randint(0, len(q_values))
+        else:
+            return np.argmax(q_values)
+
+
 
     def reset(self):
         """Start the decay over at the start value."""
-        pass
+        self.cur_steps = 0

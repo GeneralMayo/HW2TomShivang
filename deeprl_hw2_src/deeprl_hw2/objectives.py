@@ -24,7 +24,11 @@ def huber_loss(y_true, y_pred, max_grad=1.):
     tf.Tensor
       The huber loss.
     """
-    pass
+    absDiff = tf.abs(y_true - y_pred)
+    condition = tf.less(absDiff,max_grad)
+    smallDiff = .5*tf.square(absDiff)
+    largeDiff = max_grad*absDiff-.5*pow(max_grad,2)
+    return tf.select(condition,smallDiff,largeDiff)
 
 
 def mean_huber_loss(y_true, y_pred, max_grad=1.):
@@ -48,4 +52,10 @@ def mean_huber_loss(y_true, y_pred, max_grad=1.):
     tf.Tensor
       The mean huber loss.
     """
-    pass
+
+    absDiff = tf.abs(y_true - y_pred)
+    condition = tf.less(absDiff,max_grad)
+    smallDiff = .5*tf.square(absDiff)
+    largeDiff = max_grad*absDiff-.5*pow(max_grad,2)
+    return tf.reduce_mean(tf.select(condition,smallDiff,largeDiff))
+    

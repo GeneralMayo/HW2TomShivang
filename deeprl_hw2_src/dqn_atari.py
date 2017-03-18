@@ -45,7 +45,9 @@ def create_model(window, input_shape, num_actions,
     keras.models.Model
       The Q-model.
     """
-    pass
+
+    #create input placeholder
+    input = Input(shape = )
 
 
 def get_output_folder(parent_dir, env_name):
