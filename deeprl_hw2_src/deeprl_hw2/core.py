@@ -1,4 +1,7 @@
 """Core classes."""
+import numpy as np
+import gym
+import cv2
 
 
 
@@ -32,7 +35,11 @@ class Sample:
     is_terminal: boolean
       True if this action finished the episode. False otherwise.
     """
-    pass
+    def __init__(self,env,action):
+        self.state = env.env._get_obs()
+        self.action = action
+        (self.next_state, self.reward, self.is_terminal, self.info)=env.step(action)
+        
 
 
 class Preprocessor:
@@ -56,6 +63,8 @@ class Preprocessor:
     episode begins so that state doesn't leak in from episode to
     episode.
     """
+    def __init__(self):
+        pass
 
     def process_state_for_network(self, state):
         """Preprocess the given state before giving it to the network.
@@ -80,7 +89,11 @@ class Preprocessor:
           modified in anyway.
 
         """
-        return state
+        res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
+        res = cv2.resize(res,(84,84))
+        res.astype(float)
+        return res
+        
 
     def process_state_for_memory(self, state):
         """Preprocess the given state before giving it to the replay memory.
@@ -105,7 +118,11 @@ class Preprocessor:
           modified in any manner.
 
         """
-        return state
+        res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
+        res = cv2.resize(res,(84,84))
+        res.astype(int)
+        return res
+        
 
     def process_batch(self, samples):
         """Process batch of samples.
@@ -144,7 +161,12 @@ class Preprocessor:
         processed_reward: float
           The processed reward
         """
-        return reward
+        res = 0
+        if reward > 0:
+            res = 1
+        elif reward < 0:
+            res = -1
+        return res
 
     def reset(self):
         """Reset any internal state.

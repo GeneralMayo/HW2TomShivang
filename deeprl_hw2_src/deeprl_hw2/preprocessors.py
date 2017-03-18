@@ -1,7 +1,7 @@
 """Suggested Preprocessors."""
 
 import numpy as np
-from PIL import Image
+import cv2
 
 from deeprl_hw2 import utils
 from deeprl_hw2.core import Preprocessor
@@ -77,11 +77,12 @@ class AtariPreprocessor(Preprocessor):
       (84, 84) will make each image in the output have shape (84, 84).
     """
 
-    def __init__(self, new_size):
+    def __init__(self, new_size = (84,84)):
         pass
 
     def process_state_for_memory(self, state):
         """Scale, convert to greyscale and store as uint8.
+        
 
         We don't want to save floating point numbers in the replay
         memory. We get the same resolution as uint8, but use a quarter
@@ -90,7 +91,10 @@ class AtariPreprocessor(Preprocessor):
         We recommend using the Python Image Library (PIL) to do the
         image conversions.
         """
-        pass
+        res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
+        res = cv2.resize(res,(84,84))
+        res.astype(int)
+        return res
 
     def process_state_for_network(self, state):
         """Scale, convert to greyscale and store as float32.
@@ -98,7 +102,10 @@ class AtariPreprocessor(Preprocessor):
         Basically same as process state for memory, but this time
         outputs float32 images.
         """
-        pass
+        res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
+        res = cv2.resize(res,(84,84))
+        res.astype(float)
+        return res
 
     def process_batch(self, samples):
         """The batches from replay memory will be uint8, convert to float32.
@@ -111,8 +118,12 @@ class AtariPreprocessor(Preprocessor):
 
     def process_reward(self, reward):
         """Clip reward between -1 and 1."""
-        pass
-
+        res = 0
+        if reward > 0:
+            res = 1
+        elif reward < 0:
+            res = -1
+        return res
 
 class PreprocessorSequence(Preprocessor):
     """You may find it useful to stack multiple prepcrocesosrs (such as the History and the AtariPreprocessor).
