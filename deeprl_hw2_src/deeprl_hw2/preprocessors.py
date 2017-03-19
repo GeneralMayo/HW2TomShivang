@@ -23,19 +23,24 @@ class HistoryPreprocessor(Preprocessor):
 
     """
 
-    def __init__(self, history_length=1):
-        pass
+    def __init__(self, history_length=3):
+        self.frames=np.zeros((history_length+1,84,84))
+        
 
     def process_state_for_network(self, state):
         """You only want history when you're deciding the current action to take."""
-        pass
-
+        atari=AtariPreprocessor()
+        state_processed=np.reshape(atari.process_state_for_network(state),(1,atari.dim,atari.dim))
+        self.frames=np.concatenate((self.frames[1:][:][:],state_processed))
+        
+        
     def reset(self):
         """Reset the history sequence.
 
         Useful when you start a new episode.
         """
-        pass
+        self.frames=np.zeros((history_length+1,84,84))
+
 
     def get_config(self):
         return {'history_length': self.history_length}
@@ -78,7 +83,8 @@ class AtariPreprocessor(Preprocessor):
     """
 
     def __init__(self, new_size = (84,84)):
-        pass
+        self.dim=new_size[0]
+        
 
     def process_state_for_memory(self, state):
         """Scale, convert to greyscale and store as uint8.
@@ -92,7 +98,7 @@ class AtariPreprocessor(Preprocessor):
         image conversions.
         """
         res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
-        res = cv2.resize(res,(84,84))
+        res = cv2.resize(res,(self.dim,self.dim))
         res.astype(int)
         return res
 
@@ -102,8 +108,9 @@ class AtariPreprocessor(Preprocessor):
         Basically same as process state for memory, but this time
         outputs float32 images.
         """
+       
         res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
-        res = cv2.resize(res,(84,84))
+        res = cv2.resize(res,(self.dim,self.dim))
         res.astype(float)
         return res
 
