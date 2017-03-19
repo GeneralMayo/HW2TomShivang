@@ -24,14 +24,16 @@ class HistoryPreprocessor(Preprocessor):
     """
 
     def __init__(self, history_length=3):
-        self.frames=np.zeros((history_length+1,84,84))
+        self.frames=np.zeros((1,history_length+1,84,84))
+        self.history_length=history_length
         
 
     def process_state_for_network(self, state):
         """You only want history when you're deciding the current action to take."""
         atari=AtariPreprocessor()
         state_processed=np.reshape(atari.process_state_for_network(state),(1,atari.dim,atari.dim))
-        self.frames=np.concatenate((self.frames[1:][:][:],state_processed))
+        self.frames=np.concatenate((self.frames[0][1:][:][:],state_processed))
+        self.frames=np.reshape(self.frames,(1,self.history_length+1,atari.dim,atari.dim))
         
         
     def reset(self):
@@ -39,7 +41,7 @@ class HistoryPreprocessor(Preprocessor):
 
         Useful when you start a new episode.
         """
-        self.frames=np.zeros((history_length+1,84,84))
+        self.frames=np.zeros((1,history_length+1,84,84))
 
 
     def get_config(self):

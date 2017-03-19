@@ -117,6 +117,7 @@ def main():  # noqa: D103
     FRAMES_PER_STATE = 4
     INPUT_SHAPE = (84,84)
     GAMMA = .99
+    NUM_ITERATIONS = 2
     TARGET_UPDATE_FREQ = 0
     NUM_BURN_IN = 0
     TRAIN_FREQ = 0
@@ -133,7 +134,7 @@ def main():  # noqa: D103
     adam = Adam(lr=0.0001)
     loss = losses.mean_squared_error
     agent.compile(adam,loss)
-
+    agent.fit(env, NUM_ITERATIONS)
 
 if __name__ == '__main__':
     main()

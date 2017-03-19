@@ -147,7 +147,7 @@ class LinearDecayGreedyEpsilonPolicy(Policy):
         self.num_steps = num_steps
         self.cur_steps = 0
 
-    def select_action(self, **kwargs):
+    def select_action(self, q_values, **kwargs):
         """Decay parameter and select action.
 
         Parameters
