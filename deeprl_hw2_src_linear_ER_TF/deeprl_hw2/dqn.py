@@ -1,4 +1,6 @@
 import numpy as np
+#import matplotlib.pyplot as plt
+
 
 """Main DQN agent."""
 
@@ -49,7 +51,8 @@ class DQNAgent:
                  target_update_freq,
                  num_burn_in,
                  train_freq,
-                 batch_size):
+                 batch_size,
+                 num_actions):
         self.q_network = q_network
         self.preprocessor = preprocessor
         self.memory = memory
@@ -59,7 +62,7 @@ class DQNAgent:
         self.num_burn_in = num_burn_in
         self.train_freq = train_freq
         self.batch_size = batch_size
-
+        self.num_actions = num_actions
 
     def compile(self, optimizer, loss_func):
         """Setup all of the TF graph variables/ops.
@@ -144,7 +147,40 @@ class DQNAgent:
         You might want to return the loss and other metrics as an
         output. They can help you monitor how training is going.
         """
-        pass
+
+        #get minibatch
+        minibatch = random.sample(self.memory, self.batch_size)
+        minibatch = self.preprocessor.process_batch(minibatch)
+        
+        #init state inputs + state targets
+        exampleState = minibatch[0][0]
+        inputStates = np.zeros(self.batch_size, exampleState.shape[1], exampleState.shape[2], exampleState.shape[3])
+        targets = np.zeros(self.batch_size,self.num_actions)
+
+        #make compute state inputs and targets
+        for sampleIdx in range(self.batch_size):
+          s_t=minibatch[sampleIdx][0]
+          a_t=minibatch[sampleIdx][1]   #This is action index
+          r_t=minibatch[sampleIdx][2]
+          s_t1=minibatch[sampleIdx][3]
+          is_terminal=minibatch[sampleIdx][4]
+          
+          inputStates[sampleIdx] = s_t
+
+          #Note: q_t = 1x1xNUM_ACTIONS
+          q_t = self.calc_q_values(s_t)
+          targets[sampleIdx] = q_t[a_t]
+          if(is_terminal):
+            targets[sampleIdx][0][action] = r_t
+          else:
+            q_t1 = self.calc_q_values(s_t1)
+            targets[sampleIdx][0][action] = self.gamma*max(q_t1[0][0]) + r_t
+
+
+        #update weights
+        loss = self.q_network.train_on_batch(inputStates,targets)
+
+        #update target if ready
 
     def fit(self, env, num_iterations, max_episode_length=None):
         """Fit your model to the provided environment.
@@ -172,54 +208,33 @@ class DQNAgent:
           resets. Can help exploration.
         """
 
-        NUM_ACTIONS = env.action_space.n
-
         #get initial state
         self.preprocessor.process_state_for_network(env.reset())
-        state = self.preprocessor.frames
+        s_t = self.preprocessor.frames
 
         #iterate through environment samples
-        for iterations in range(num_iterations):
+        for iteration in range(num_iterations):
           #select action
-          q_vals = self.calc_q_values(state)
-          action = self.policy.select_action(q_vals)
+          q_t = self.calc_q_values(s_t)
+          a_t = self.policy.select_action(q_t)
           #get next state, reward, is terminal
-          (next_state, reward, is_terminal, info)= env.step(action)
-          self.preprocessor.process_state_for_network(next_state)
-          next_state = self.preprocessor.frames
-          #get target... should be 1xNUM_ACTIONS when no batches
-          target = q_vals 
-          if(is_terminal):
-            target[0][0][action] = reward
-          else:
-            next_qvals = self.calc_q_values(next_state)
-            target[0][0][action] = self.gamma*max(next_qvals[0][0]) + reward
-
-          #update weights
-          loss = self.q_network.train_on_batch(state,target)
-
+          (s_t1, r_t, is_terminal, info)= env.step(a_t)
+          self.preprocessor.process_state_for_network(s_t1)
+          s_t1 = self.preprocessor.frames
           
-          print("next_state Shape")
-          print(next_state.shape)
-          print("Qval Len = %d\n",len(q_vals[0][0]))
-          print("Qvals")
-          print(q_vals[0][0])
-          print("Action = %d",action)
-          print("Reward = %f",reward)
-          print("is_terminal = %r",is_terminal)
-          print("Target = %f",target)
-          print("loss = %f",loss)
-          print("\n\n")
-
+          #store sample in memory
+          
+          
+          #update policy
+          self.update_policy()
 
           #update new state
           if(is_terminal):
+            self.preprocessor.reset()
             self.preprocessor.process_state_for_network(env.reset())
+            s_t = self.preprocessor.frames
           else:
-            state = next_state
-
-
-
+            s_t = s_t1
 
 
         

@@ -106,10 +106,6 @@ def main():  # noqa: D103
     #args.output = get_output_folder(args.output, args.env)
 
     #set up environment model
-
-    #rint(type(args.env))
-    #input()
-
     env=gym.make(str(args.env))
     NUM_ACTIONS = env.action_space.n #env.get_action_space().num_actions()    
     
@@ -117,7 +113,7 @@ def main():  # noqa: D103
     FRAMES_PER_STATE = 4
     INPUT_SHAPE = (84,84)
     GAMMA = .99
-    NUM_ITERATIONS = 2
+    NUM_ITERATIONS = 100
     TARGET_UPDATE_FREQ = 0
     NUM_BURN_IN = 0
     TRAIN_FREQ = 0
@@ -128,7 +124,7 @@ def main():  # noqa: D103
     preprocessor = HistoryPreprocessor(FRAMES_PER_STATE-1)
     memory = None
     policy = LinearDecayGreedyEpsilonPolicy(1,.05,10e6)
-    agent = DQNAgent(model,preprocessor,memory,policy,GAMMA,TARGET_UPDATE_FREQ,NUM_BURN_IN,TRAIN_FREQ,BATCH_SIZE)
+    agent = DQNAgent(model,preprocessor,memory,policy,GAMMA,TARGET_UPDATE_FREQ,NUM_BURN_IN,TRAIN_FREQ,BATCH_SIZE,NUM_ACTIONS)
 
     #compile agent
     adam = Adam(lr=0.0001)
