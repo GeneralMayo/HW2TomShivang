@@ -3,18 +3,22 @@
 import argparse
 import os
 import random
+import gym
 
 import numpy as np
 import tensorflow as tf
 from keras.layers import (Activation, Convolution2D, Dense, Flatten, Input,
-                          Permute)
+                          Permute,Reshape)
 from keras.models import Model
+from keras.models import Sequential
 from keras.optimizers import Adam
 from keras import losses
 
 import deeprl_hw2 as tfrl
 from deeprl_hw2.dqn import DQNAgent
 from deeprl_hw2.objectives import mean_huber_loss
+from deeprl_hw2.preprocessors import HistoryPreprocessor
+from deeprl_hw2.policy import LinearDecayGreedyEpsilonPolicy
 
 
 def create_model(window, input_shape, num_actions,
@@ -48,7 +52,7 @@ def create_model(window, input_shape, num_actions,
     """
     model = Sequential()
     #add bais
-    model.add(Reshape((1,window*input_shape[0]*input_shape[1])))
+    model.add(Reshape((1,window*input_shape[0]*input_shape[1]),input_shape=(window,input_shape[0],input_shape[1])))
     model.add(Dense(num_actions, init='normal', use_bias=True))
     return model
 
@@ -97,14 +101,17 @@ def main():  # noqa: D103
     parser.add_argument('--seed', default=0, type=int, help='Random seed')
 
     args = parser.parse_args()
-    args.input_shape = tuple(args.input_shape)
+    #args.input_shape = tuple(args.input_shape)
 
-    args.output = get_output_folder(args.output, args.env)
+    #args.output = get_output_folder(args.output, args.env)
 
     #set up environment model
-    env = ...
-    NUM_ACTIONS = env.
-    
+
+    #rint(type(args.env))
+    #input()
+
+    env=gym.make(str(args.env))
+    NUM_ACTIONS = env.action_space.n #env.get_action_space().num_actions()    
     
     #make dqn agent
     FRAMES_PER_STATE = 4
@@ -126,8 +133,6 @@ def main():  # noqa: D103
     adam = Adam(lr=0.0001)
     loss = losses.mean_squared_error
     agent.compile(adam,loss)
-
-    
 
 
 if __name__ == '__main__':
