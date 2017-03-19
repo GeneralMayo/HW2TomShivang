@@ -48,7 +48,16 @@ class DQNAgent:
                  num_burn_in,
                  train_freq,
                  batch_size):
-        pass
+        self.q_network = q_network
+        self.preprocessor = preprocessor
+        self.memory = memory
+        self.policy = policy
+        self.gamma = gamma
+        self.target_update_freq = target_update_freq
+        self.num_burn_in = num_burn_in
+        self.train_freq = train_freq
+        self.batch_size = batch_size
+
 
     def compile(self, optimizer, loss_func):
         """Setup all of the TF graph variables/ops.
@@ -67,10 +76,11 @@ class DQNAgent:
         keras.optimizers.Optimizer class. Specifically the Adam
         optimizer.
         """
-        #model.compile(loss_func,optimizer)
+        self.q_network.compile(loss=loss_func,optimizer=optimizer)
 
     def calc_q_values(self, state):
-        """Given a state (or batch of states) calculate the Q-values.
+        """
+        Given a preprocessed state (or batch of states) calculate the Q-values.
 
         Basically run your network on these states.
 
@@ -78,7 +88,16 @@ class DQNAgent:
         ------
         Q-values for the state(s)
         """
-        pass
+
+        #How many states???
+        #q_values = np.zeros(...,self.policy.num_actions)
+
+        #iterate through states
+        #  q_values[sIdx] = self.q_network.predict(state[sIdx])
+
+        #return q_values
+        
+        return self.q_network.predict(state)
 
     def select_action(self, state, **kwargs):
         """Select the action based on the current state.
@@ -101,7 +120,12 @@ class DQNAgent:
         --------
         selected action
         """
-        pass
+
+        #get q-values
+        #calc_q_values(state)
+        q_vals = calc_q_values(state)
+        return self.policy.select_action(q_vals)
+
 
     def update_policy(self):
         """Update your policy.

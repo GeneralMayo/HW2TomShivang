@@ -134,8 +134,7 @@ class LinearDecayGreedyEpsilonPolicy(Policy):
 
     """
 
-    def __init__(self, policy, attr_name, start_value, end_value,
-                 num_steps):  # noqa: D102
+    def __init__(self, start_value, end_value, num_steps):  # noqa: D102
         assert num_steps > 0
         assert end_value <= start_value
         assert start_value >= 0
@@ -143,7 +142,6 @@ class LinearDecayGreedyEpsilonPolicy(Policy):
         assert end_value >= 0
         assert end_value <= 1
 
-        self.attr_name = attr_name
         self.start_value = start_value
         self.end_value = end_value
         self.num_steps = num_steps

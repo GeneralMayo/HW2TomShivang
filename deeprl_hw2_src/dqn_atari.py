@@ -10,6 +10,7 @@ from keras.layers import (Activation, Convolution2D, Dense, Flatten, Input,
                           Permute)
 from keras.models import Model
 from keras.optimizers import Adam
+from keras import losses
 
 import deeprl_hw2 as tfrl
 from deeprl_hw2.dqn import DQNAgent
@@ -45,10 +46,11 @@ def create_model(window, input_shape, num_actions,
     keras.models.Model
       The Q-model.
     """
-
-    #create input placeholder
-    input = Input(shape = )
-
+    model = Sequential()
+    #add bais
+    model.add(Reshape((1,window*input_shape[0]*input_shape[1])))
+    model.add(Dense(num_actions, init='normal', use_bias=True))
+    return model
 
 def get_output_folder(parent_dir, env_name):
     """Return save folder.
@@ -99,9 +101,34 @@ def main():  # noqa: D103
 
     args.output = get_output_folder(args.output, args.env)
 
-    # here is where you should start up a session,
-    # create your DQN agent, create your model, etc.
-    # then you can run your fit method.
+    #set up environment model
+    env = ...
+    NUM_ACTIONS = env.
+    
+    
+    #make dqn agent
+    FRAMES_PER_STATE = 4
+    INPUT_SHAPE = (84,84)
+    GAMMA = .99
+    TARGET_UPDATE_FREQ = 0
+    NUM_BURN_IN = 0
+    TRAIN_FREQ = 0
+    BATCH_SIZE = 0
+
+    model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
+                 model_name='linear q_network');
+    preprocessor = HistoryPreprocessor(FRAMES_PER_STATE-1)
+    memory = None
+    policy = LinearDecayGreedyEpsilonPolicy(1,.05,10e6)
+    agent = DQNAgent(model,preprocessor,memory,policy,GAMMA,TARGET_UPDATE_FREQ,NUM_BURN_IN,TRAIN_FREQ,BATCH_SIZE)
+
+    #compile agent
+    adam = Adam(lr=0.0001)
+    loss = losses.mean_squared_error
+    agent.compile(adam,loss)
+
+    
+
 
 if __name__ == '__main__':
     main()
