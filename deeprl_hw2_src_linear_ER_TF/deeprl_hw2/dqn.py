@@ -1,5 +1,5 @@
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 """Main DQN agent."""
@@ -101,7 +101,7 @@ class DQNAgent:
         #  q_values[sIdx] = self.q_network.predict(state[sIdx])
 
         #return q_values
-        
+
         return self.q_network.predict(state)
 
     def select_action(self, state, **kwargs):
@@ -151,7 +151,7 @@ class DQNAgent:
         #get minibatch
         minibatch = random.sample(self.memory, self.batch_size)
         minibatch = self.preprocessor.process_batch(minibatch)
-        
+
         #init state inputs + state targets
         exampleState = minibatch[0][0]
         inputStates = np.zeros(self.batch_size, exampleState.shape[1], exampleState.shape[2], exampleState.shape[3])
@@ -159,30 +159,31 @@ class DQNAgent:
 
         #make compute state inputs and targets
         for sampleIdx in range(self.batch_size):
-          s_t=minibatch[sampleIdx][0]
-          a_t=minibatch[sampleIdx][1]   #This is action index
-          r_t=minibatch[sampleIdx][2]
-          s_t1=minibatch[sampleIdx][3]
-          is_terminal=minibatch[sampleIdx][4]
-          
-          inputStates[sampleIdx] = s_t
+            s_t=minibatch[sampleIdx][0]
+            a_t=minibatch[sampleIdx][1]   #This is action index
+            r_t=minibatch[sampleIdx][2]
+            s_t1=minibatch[sampleIdx][3]
+            is_terminal=minibatch[sampleIdx][4]
 
-          #Note: q_t = 1x1xNUM_ACTIONS
-          q_t = self.calc_q_values(s_t)
-          targets[sampleIdx] = q_t[a_t]
-          if(is_terminal):
-            targets[sampleIdx][0][action] = r_t
-          else:
-            q_t1 = self.calc_q_values(s_t1)
-            targets[sampleIdx][0][action] = self.gamma*max(q_t1[0][0]) + r_t
+            inputStates[sampleIdx] = s_t
+
+            #Note: q_t = 1x1xNUM_ACTIONS
+            q_t = self.calc_q_values(s_t)
+            targets[sampleIdx] = q_t[a_t]
+            if(is_terminal):
+                targets[sampleIdx][0][action] = r_t
+            else:
+                q_t1 = self.calc_q_values(s_t1)
+                targets[sampleIdx][0][action] = self.gamma*max(q_t1[0][0]) + r_t
 
 
         #update weights
         loss = self.q_network.train_on_batch(inputStates,targets)
 
         #update target if ready
+        return loss
 
-    def fit(self, env, num_iterations, max_episode_length=None):
+    def fit(self, env, num_iterations, max_episode_length=None,num_episodes=20):
         """Fit your model to the provided environment.
 
         Its a good idea to print out things like loss, average reward,
@@ -207,49 +208,79 @@ class DQNAgent:
           How long a single episode should last before the agent
           resets. Can help exploration.
         """
-
+        reward_samp = 10000
         #get initial state
         self.preprocessor.process_state_for_network(env.reset())
         s_t = self.preprocessor.frames
 
         #iterate through environment samples
         for iteration in range(num_iterations):
-          #select action
-          q_t = self.calc_q_values(s_t)
-          a_t = self.policy.select_action(q_t)
-          #get next state, reward, is terminal
-          (s_t1, r_t, is_terminal, info)= env.step(a_t)
-          self.preprocessor.process_state_for_network(s_t1)
-          s_t1 = self.preprocessor.frames
-          
-          #store sample in memory
-          
-          
-          #update policy
-          self.update_policy()
+            cum_reward = 0
+            #select action
+            q_t = self.calc_q_values(s_t)
+            a_t = self.policy.select_action(q_t)
+            #get next state, reward, is terminal
+            (s_t1, r_t, is_terminal, info)= env.step(a_t)
+            self.preprocessor.process_state_for_network(s_t1)
+            s_t1 = self.preprocessor.frames
 
-          #update new state
-          if(is_terminal):
-            self.preprocessor.reset()
-            self.preprocessor.process_state_for_network(env.reset())
-            s_t = self.preprocessor.frames
-          else:
-            s_t = s_t1
+            #store sample in memory
 
 
-        
+            #update policy
+            loss =self.update_policy()
+            if (iteration % reward_samp == 0):
+                cum_reward = self.evaluate(env, num_episodes)
+                rewards[int(iteration / reward_samp)] = cum_reward
+                print ("At iteration : ", iteration, " , Reward = ", cum_reward)
+            allLoss[iteration] = loss
 
-    def evaluate(self, env, num_episodes, max_episode_length=None):
-        """Test your agent with a provided environment.
-        
-        You shouldn't update your network parameters here. Also if you
-        have any layers that vary in behavior between train/test time
-        (such as dropout or batch norm), you should set them to test.
+            #update new state
+            if(is_terminal):
+                self.preprocessor.reset()
+                self.preprocessor.process_state_for_network(env.reset())
+                s_t = self.preprocessor.frames
+            else:
+                s_t = s_t1
 
-        Basically run your policy on the environment and collect stats
-        like cumulative reward, average episode length, etc.
+        fig = plt.figure()
+        plt.plot(allLoss)
+        plt.ylabel('Loss function')
+        fig.savefig('Loss.png')
+        plt.clf()
+        plt.plot(rewards)
+        plt.ylabel('Average Reward')
+        fig.savefig('reward.png')
 
-        You can also call the render function here if you want to
-        visually inspect your policy.
-        """
-        pass
+
+def evaluate(self, env, num_episodes, max_episode_length=None):
+    """Test your agent with a provided environment.
+
+    You shouldn't update your network parameters here. Also if you
+    have any layers that vary in behavior between train/test time
+    (such as dropout or batch norm), you should set them to test.
+
+    Basically run your policy on the environment and collect stats
+    like cumulative reward, average episode length, etc.
+
+    You can also call the render function here if you want to
+    visually inspect your policy.
+    """
+    cumulative_reward = 0
+    for episodes in range(num_episodes):
+        # get initial state
+        self.preprocessor.process_state_for_network(env.reset())
+        state = self.preprocessor.frames
+        while True:
+            q_vals = self.calc_q_values(state)
+            action = np.argmax(q_vals)
+            (next_state, reward, is_terminal, info) = env.step(action)
+            cumulative_reward = cumulative_reward + reward
+            self.preprocessor.process_state_for_network(next_state)
+            next_state = self.preprocessor.frames
+            state = next_state
+            if is_terminal:
+                break
+    avg_reward = cumulative_reward / num_episodes
+
+    return avg_reward
