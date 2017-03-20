@@ -2,6 +2,7 @@
 import numpy as np
 import gym
 import cv2
+import random
 
 from collections import deque
 
@@ -37,14 +38,15 @@ class Sample:
     is_terminal: boolean
       True if this action finished the episode. False otherwise.
     """
-    def __init__(self,s_t,a_t,r_t,s_t1):
-        assert(type(s_t[0][0][0][0])==int) 
-        assert(type(s_t1[0][0][0][0])==int) 
+    def __init__(self,s_t,a_t,r_t,s_t1,is_terminal):
+        assert((s_t[0][0][0][0]).dtype=="uint8")
+        assert((s_t1[0][0][0][0]).dtype=="uint8")
 
         self.s_t = s_t
         self.a_t = a_t
         self.r_t = r_t
         self.s_t1 = s_t1
+        self.is_terminal=is_terminal
         
 class Preprocessor:
     """Preprocessor base class.
@@ -95,7 +97,7 @@ class Preprocessor:
         """
         res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
         res = cv2.resize(res,(84,84))
-        res.astype(float)
+        res=np.float64(res)
         return res
         
 
@@ -121,10 +123,11 @@ class Preprocessor:
           Generally a numpy array. The state after processing. Can be
           modified in any manner.
 
-        """
-        res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
-        res = cv2.resize(res,(84,84))
-        res.astype(int)
+
+                        """
+
+
+        res = np.uint8(state)
         return res
         
 
@@ -146,6 +149,13 @@ class Preprocessor:
           Samples after processing. Can be modified in anyways, but
           the list length will generally stay the same.
         """
+
+        for sample in samples:
+            s_t=np.float64(sample.s_t)
+            s_t1 = np.float64(sample.s_t1)
+            sample.s_t=s_t
+            sample.s_t1=s_t1
+
         return samples
 
     def process_reward(self, reward):
@@ -239,8 +249,8 @@ class ReplayMemory:
         self.window_length = window_length
         
     #States should have been preprecessed for memory
-    def append(self, state, action, reward, nstate):
-        self.M.append(Sample(state,action,reward,next_state))
+    def append(self, state, action, reward, next_state,is_terminal):
+        self.M.append(Sample(state,action,reward,next_state,is_terminal))
 
     #def end_episode(self, final_state, is_terminal):
 

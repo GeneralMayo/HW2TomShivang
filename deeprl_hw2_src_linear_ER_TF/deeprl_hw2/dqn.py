@@ -153,30 +153,31 @@ class DQNAgent:
         minibatch = self.preprocessor.process_batch(minibatch)
 
         #init state inputs + state targets
-        exampleState = minibatch[0][0]
-        inputStates = np.zeros(self.batch_size, exampleState.shape[1], exampleState.shape[2], exampleState.shape[3])
-        targets = np.zeros(self.batch_size,self.num_actions)
+
+        exampleState = minibatch[0].s_t
+        inputStates = np.zeros((self.batch_size, exampleState.shape[1], exampleState.shape[2], exampleState.shape[3]))
+        targets = np.zeros((self.batch_size,1,self.num_actions))
 
         #make compute state inputs and targets
         for sampleIdx in range(self.batch_size):
-          s_t=minibatch[sampleIdx][0]
-          a_t=minibatch[sampleIdx][1]   #This is action index
-          r_t=minibatch[sampleIdx][2]
-          s_t1=minibatch[sampleIdx][3]
-          is_terminal=minibatch[sampleIdx][4]
-          assert(type(s_t[0][0][0][0])==float) 
-          assert(type(s_t1[0][0][0][0])==float) 
+          s_t=minibatch[sampleIdx].s_t
+          a_t=minibatch[sampleIdx].a_t   #This is action index
+          r_t=minibatch[sampleIdx].r_t
+          s_t1=minibatch[sampleIdx].s_t1
+          is_terminal=minibatch[sampleIdx].is_terminal
+          assert((s_t[0][0][0][0]).dtype=="float64")
+          assert((s_t1[0][0][0][0]).dtype=="float64")
           
           inputStates[sampleIdx] = s_t
 
           #Note: q_t = 1x1xNUM_ACTIONS
           q_t = self.calc_q_values(s_t)
-          targets[sampleIdx] = q_t[a_t]
+          targets[sampleIdx][:][:] = q_t
           if(is_terminal):
-            targets[sampleIdx][0][action] = r_t
+            targets[sampleIdx][0][a_t] = r_t
           else:
             q_t1 = self.calc_q_values(s_t1)
-            targets[sampleIdx][0][action] = self.gamma*max(q_t1[0][0]) + r_t
+            targets[sampleIdx][0][a_t] = self.gamma*max(q_t1[0][0]) + r_t
 
 
         #update weights
@@ -210,11 +211,13 @@ class DQNAgent:
           How long a single episode should last before the agent
           resets. Can help exploration.
         """
-        reward_samp = 10000
+        reward_samp = 1000
         #get initial state
         self.preprocessor.process_state_for_network(env.reset())
         s_t = self.preprocessor.frames
 
+        allLoss=np.zeros(num_iterations)
+        rewards=np.zeros(num_iterations)
         #iterate through environment samples
         for iteration in range(num_iterations):
             cum_reward = 0
@@ -228,17 +231,18 @@ class DQNAgent:
 
             #store sample in memory
             self.memory.append(self.preprocessor.process_state_for_memory(s_t), a_t,
-           r_t, self.preprocessor.process_state_for_memory(s_t1))
+           r_t, self.preprocessor.process_state_for_memory(s_t1),is_terminal)
 
             #update policy
-            if(iteration>num_burn_in):
+            if(iteration>self.num_burn_in):
               loss =self.update_policy()
-              
+              allLoss[iteration] = loss
+
             if (iteration % reward_samp == 0):
                 cum_reward = self.evaluate(env, num_episodes)
                 rewards[int(iteration / reward_samp)] = cum_reward
                 print ("At iteration : ", iteration, " , Reward = ", cum_reward)
-            allLoss[iteration] = loss
+
 
             #update new state
             if(is_terminal):
@@ -258,34 +262,34 @@ class DQNAgent:
         fig.savefig('reward.png')
 
 
-def evaluate(self, env, num_episodes, max_episode_length=None):
-    """Test your agent with a provided environment.
+    def evaluate(self, env, num_episodes, max_episode_length=None):
+        """Test your agent with a provided environment.
 
-    You shouldn't update your network parameters here. Also if you
-    have any layers that vary in behavior between train/test time
-    (such as dropout or batch norm), you should set them to test.
+        You shouldn't update your network parameters here. Also if you
+        have any layers that vary in behavior between train/test time
+        (such as dropout or batch norm), you should set them to test.
 
-    Basically run your policy on the environment and collect stats
-    like cumulative reward, average episode length, etc.
+        Basically run your policy on the environment and collect stats
+        like cumulative reward, average episode length, etc.
 
-    You can also call the render function here if you want to
-    visually inspect your policy.
-    """
-    cumulative_reward = 0
-    for episodes in range(num_episodes):
-        # get initial state
-        self.preprocessor.process_state_for_network(env.reset())
-        state = self.preprocessor.frames
-        while True:
-            q_vals = self.calc_q_values(state)
-            action = np.argmax(q_vals)
-            (next_state, reward, is_terminal, info) = env.step(action)
-            cumulative_reward = cumulative_reward + reward
-            self.preprocessor.process_state_for_network(next_state)
-            next_state = self.preprocessor.frames
-            state = next_state
-            if is_terminal:
-                break
-    avg_reward = cumulative_reward / num_episodes
+        You can also call the render function here if you want to
+        visually inspect your policy.
+        """
+        cumulative_reward = 0
+        for episodes in range(num_episodes):
+            # get initial state
+            self.preprocessor.process_state_for_network(env.reset())
+            state = self.preprocessor.frames
+            while True:
+                q_vals = self.calc_q_values(state)
+                action = np.argmax(q_vals)
+                (next_state, reward, is_terminal, info) = env.step(action)
+                cumulative_reward = cumulative_reward + reward
+                self.preprocessor.process_state_for_network(next_state)
+                next_state = self.preprocessor.frames
+                state = next_state
+                if is_terminal:
+                    break
+        avg_reward = cumulative_reward / num_episodes
 
-    return avg_reward
+        return avg_reward

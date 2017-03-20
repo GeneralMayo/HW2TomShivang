@@ -99,9 +99,7 @@ class AtariPreprocessor(Preprocessor):
         We recommend using the Python Image Library (PIL) to do the
         image conversions.
         """
-        res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
-        res = cv2.resize(res,(self.dim,self.dim))
-        res.astype(int)
+        res = np.uint8(res)
         return res
 
     def process_state_for_network(self, state):
@@ -113,7 +111,7 @@ class AtariPreprocessor(Preprocessor):
        
         res = cv2.cvtColor(state, cv2.COLOR_RGB2GRAY)
         res = cv2.resize(res,(self.dim,self.dim))
-        res.astype(float)
+        res = np.float64(res)
         return res
 
     def process_batch(self, samples):
@@ -123,7 +121,16 @@ class AtariPreprocessor(Preprocessor):
         samples from the replay memory. Meaning you need to convert
         both state and next state values.
         """
-        pass
+
+        # make compute state inputs and targets
+
+        for sample in samples:
+            s_t=np.float64(sample.s_t)
+            s_t1 = np.float64(sample.s_t1)
+            sample.s_t=s_t
+            sample.s_t1=s_t1
+
+        return samples
 
     def process_reward(self, reward):
         """Clip reward between -1 and 1."""
