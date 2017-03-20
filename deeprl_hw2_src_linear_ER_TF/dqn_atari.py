@@ -19,6 +19,7 @@ from deeprl_hw2.dqn import DQNAgent
 from deeprl_hw2.objectives import mean_huber_loss
 from deeprl_hw2.preprocessors import HistoryPreprocessor
 from deeprl_hw2.policy import LinearDecayGreedyEpsilonPolicy
+from deeprl_hw2.core import ReplayMemory
 
 
 def create_model(window, input_shape, num_actions,
@@ -115,14 +116,15 @@ def main():  # noqa: D103
     GAMMA = .99
     NUM_ITERATIONS = 100
     TARGET_UPDATE_FREQ = 0
-    NUM_BURN_IN = 0
+    NUM_BURN_IN = 32
     TRAIN_FREQ = 0
-    BATCH_SIZE = 0
+    BATCH_SIZE = 32
+    REPLAY_MEM_SIZE = 1000000
 
     model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
                  model_name='linear q_network');
     preprocessor = HistoryPreprocessor(FRAMES_PER_STATE-1)
-    memory = None
+    memory = ReplayMemory(REPLAY_MEM_SIZE,FRAMES_PER_STATE)
     policy = LinearDecayGreedyEpsilonPolicy(1,.05,10e6)
     agent = DQNAgent(model,preprocessor,memory,policy,GAMMA,TARGET_UPDATE_FREQ,NUM_BURN_IN,TRAIN_FREQ,BATCH_SIZE,NUM_ACTIONS)
 

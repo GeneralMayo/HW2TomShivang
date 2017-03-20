@@ -38,6 +38,9 @@ class Sample:
       True if this action finished the episode. False otherwise.
     """
     def __init__(self,s_t,a_t,r_t,s_t1):
+        assert(type(s_t[0][0][0][0])==int) 
+        assert(type(s_t1[0][0][0][0])==int) 
+
         self.s_t = s_t
         self.a_t = a_t
         self.r_t = r_t
@@ -235,15 +238,18 @@ class ReplayMemory:
         self.max_size = max_size
         self.window_length = window_length
         
-
+    #States should have been preprecessed for memory
     def append(self, state, action, reward, nstate):
+        self.M.append(Sample(state,action,reward,next_state))
 
+    #def end_episode(self, final_state, is_terminal):
 
-    def end_episode(self, final_state, is_terminal):
-        raise NotImplementedError('This method should be overridden')
 
     def sample(self, batch_size, indexes=None):
-        raise NotImplementedError('This method should be overridden')
+        if(indexes == None):
+            return random.sample(self.M, batch_size)
+        else:
+            raise NotImplementedError('Sample with indexes not implemented')
 
     def clear(self):
-        raise NotImplementedError('This method should be overridden')
+        self.M.clear()

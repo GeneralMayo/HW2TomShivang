@@ -149,7 +149,7 @@ class DQNAgent:
         """
 
         #get minibatch
-        minibatch = random.sample(self.memory, self.batch_size)
+        minibatch = self.memory.sample(self.batch_size)
         minibatch = self.preprocessor.process_batch(minibatch)
 
         #init state inputs + state targets
@@ -159,22 +159,24 @@ class DQNAgent:
 
         #make compute state inputs and targets
         for sampleIdx in range(self.batch_size):
-            s_t=minibatch[sampleIdx][0]
-            a_t=minibatch[sampleIdx][1]   #This is action index
-            r_t=minibatch[sampleIdx][2]
-            s_t1=minibatch[sampleIdx][3]
-            is_terminal=minibatch[sampleIdx][4]
+          s_t=minibatch[sampleIdx][0]
+          a_t=minibatch[sampleIdx][1]   #This is action index
+          r_t=minibatch[sampleIdx][2]
+          s_t1=minibatch[sampleIdx][3]
+          is_terminal=minibatch[sampleIdx][4]
+          assert(type(s_t[0][0][0][0])==float) 
+          assert(type(s_t1[0][0][0][0])==float) 
+          
+          inputStates[sampleIdx] = s_t
 
-            inputStates[sampleIdx] = s_t
-
-            #Note: q_t = 1x1xNUM_ACTIONS
-            q_t = self.calc_q_values(s_t)
-            targets[sampleIdx] = q_t[a_t]
-            if(is_terminal):
-                targets[sampleIdx][0][action] = r_t
-            else:
-                q_t1 = self.calc_q_values(s_t1)
-                targets[sampleIdx][0][action] = self.gamma*max(q_t1[0][0]) + r_t
+          #Note: q_t = 1x1xNUM_ACTIONS
+          q_t = self.calc_q_values(s_t)
+          targets[sampleIdx] = q_t[a_t]
+          if(is_terminal):
+            targets[sampleIdx][0][action] = r_t
+          else:
+            q_t1 = self.calc_q_values(s_t1)
+            targets[sampleIdx][0][action] = self.gamma*max(q_t1[0][0]) + r_t
 
 
         #update weights
@@ -225,10 +227,13 @@ class DQNAgent:
             s_t1 = self.preprocessor.frames
 
             #store sample in memory
-
+            self.memory.append(self.preprocessor.process_state_for_memory(s_t), a_t,
+           r_t, self.preprocessor.process_state_for_memory(s_t1))
 
             #update policy
-            loss =self.update_policy()
+            if(iteration>num_burn_in):
+              loss =self.update_policy()
+              
             if (iteration % reward_samp == 0):
                 cum_reward = self.evaluate(env, num_episodes)
                 rewards[int(iteration / reward_samp)] = cum_reward
