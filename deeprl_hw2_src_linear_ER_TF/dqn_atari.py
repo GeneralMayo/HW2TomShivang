@@ -13,6 +13,9 @@ from keras.models import Model
 from keras.models import Sequential
 from keras.optimizers import Adam
 from keras import losses
+import pydot
+import graphviz
+from keras.utils import plot_model
 
 import deeprl_hw2 as tfrl
 from deeprl_hw2.dqn import DQNAgent
@@ -124,6 +127,10 @@ def main():  # noqa: D103
 
     model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
                  model_name='linear q_network')
+
+    plot_model(model, to_file='model.png')
+    input()
+
     target = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
                  model_name='linear q_network target')
     preprocessor = HistoryPreprocessor(FRAMES_PER_STATE-1)
