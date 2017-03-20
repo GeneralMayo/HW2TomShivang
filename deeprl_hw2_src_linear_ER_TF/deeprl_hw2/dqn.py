@@ -217,7 +217,7 @@ class DQNAgent:
         s_t = self.preprocessor.frames
 
         allLoss=np.zeros(num_iterations)
-        rewards=np.zeros(num_iterations)
+        rewards=np.zeros(int (num_iterations/reward_samp))
         #iterate through environment samples
         for iteration in range(num_iterations):
             cum_reward = 0
