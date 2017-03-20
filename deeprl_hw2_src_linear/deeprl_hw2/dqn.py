@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import time
+
+
 """Main DQN agent."""
 
 class DQNAgent:
@@ -174,14 +175,17 @@ class DQNAgent:
         """
 
         NUM_ACTIONS = env.action_space.n
-
-        #get initial state
+        reward_samp = 10000
+        # get initial state
         self.preprocessor.process_state_for_network(env.reset())
         state = self.preprocessor.frames
-        Loss=np.zeros(num_iterations)
-        Rewards=np.zeros(int (num_iterations/10000))
+
+        rewards = np.zeros(int(num_iterations / reward_samp))
+        allLoss = np.zeros(num_iterations)
+
         #iterate through environment samples
-        for iterations in range(num_iterations):
+        for iteration in range(num_iterations):
+            cum_reward=0
             #select action
             q_vals = self.calc_q_values(state)
             action = self.policy.select_action(q_vals)
@@ -189,7 +193,7 @@ class DQNAgent:
             (next_state, reward, is_terminal, info)= env.step(action)
             self.preprocessor.process_state_for_network(next_state)
             next_state = self.preprocessor.frames
-            #get target... should be 1xNUM_ACTIONS when no batches
+            #get target... should be 1x1xNUM_ACTIONS when no batches
             target = q_vals
             if(is_terminal):
                 target[0][0][action] = reward
@@ -200,41 +204,28 @@ class DQNAgent:
             #update weights
             loss = self.q_network.train_on_batch(state,target)
 
-            """
-            print("next_state Shape")
-            print(next_state.shape)
-            print("Qval Len = %d\n",len(q_vals[0][0]))
-            print("Qvals")
-            print(q_vals[0][0])
-            print("Action = %d",action)
-            print("Reward = %f",reward)
-            print("is_terminal = %r",is_terminal)
-            print("Target = %f",target)
-            print("loss = %f",loss)
-            print("\n\n")
-            """
+            if (iteration % reward_samp== 0):
+                cum_reward=self.evaluate(env, num_episodes)
+                rewards[int(iteration / reward_samp)] = cum_reward
+                print ("At iteration : ", iteration, " , Reward = ", cum_reward)
+            allLoss[iteration] = loss
 
             #update new state
             if(is_terminal):
+                self.preprocessor.reset()
                 self.preprocessor.process_state_for_network(env.reset())
+                state = self.preprocessor.frames
             else:
                 state = next_state
-            if (iterations%10000==0):
-                print ("At iteration : ", iterations)
-                Rewards[int (iterations/10000)]=self.evaluate(env,num_episodes)
-            Loss[iterations]=loss
 
         fig = plt.figure()
-        plt.plot(Loss)
+        plt.plot(allLoss)
         plt.ylabel('Loss function')
         fig.savefig('Loss.png')
         plt.clf()
-        plt.plot(Rewards)
+        plt.plot(rewards)
         plt.ylabel('Average Reward')
         fig.savefig('reward.png')
-
-
-
 
 
     def evaluate(self, env, num_episodes, max_episode_length=None):
@@ -250,21 +241,21 @@ class DQNAgent:
         You can also call the render function here if you want to
         visually inspect your policy.
         """
-        cumulative_reward=0
+        cumulative_reward = 0
         for episodes in range(num_episodes):
             # get initial state
             self.preprocessor.process_state_for_network(env.reset())
             state = self.preprocessor.frames
             while True:
                 q_vals = self.calc_q_values(state)
-                action=np.argmax(q_vals)
-                (next_state, reward, is_terminal, info)=env.step(action)
-                cumulative_reward=cumulative_reward+reward
+                action = np.argmax(q_vals)
+                (next_state, reward, is_terminal, info) = env.step(action)
+                cumulative_reward = cumulative_reward + reward
                 self.preprocessor.process_state_for_network(next_state)
                 next_state = self.preprocessor.frames
-                state=next_state
+                state = next_state
                 if is_terminal:
                     break
-        avg_reward=cumulative_reward/num_episodes
+        avg_reward = cumulative_reward / num_episodes
 
         return avg_reward

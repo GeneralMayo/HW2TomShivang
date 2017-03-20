@@ -41,7 +41,7 @@ class HistoryPreprocessor(Preprocessor):
 
         Useful when you start a new episode.
         """
-        self.frames=np.zeros((1,history_length+1,84,84))
+        self.frames=np.zeros((1,self.history_length+1,84,84))
 
 
     def get_config(self):
