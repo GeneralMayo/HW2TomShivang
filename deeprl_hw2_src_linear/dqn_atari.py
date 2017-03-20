@@ -113,7 +113,7 @@ def main():  # noqa: D103
     FRAMES_PER_STATE = 4
     INPUT_SHAPE = (84,84)
     GAMMA = .99
-    NUM_ITERATIONS = 2
+    NUM_ITERATIONS = 500000
     TARGET_UPDATE_FREQ = 0
     NUM_BURN_IN = 0
     TRAIN_FREQ = 0
