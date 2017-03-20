@@ -3,6 +3,8 @@ import numpy as np
 import gym
 import cv2
 
+from collections import deque
+
 
 
 class Sample:
@@ -35,13 +37,12 @@ class Sample:
     is_terminal: boolean
       True if this action finished the episode. False otherwise.
     """
-    def __init__(self,env,action):
-        self.state = env.env._get_obs()
-        self.action = action
-        (self.next_state, self.reward, self.is_terminal, self.info)=env.step(action)
+    def __init__(self,s_t,a_t,r_t,s_t1):
+        self.s_t = s_t
+        self.a_t = a_t
+        self.r_t = r_t
+        self.s_t1 = s_t1
         
-
-
 class Preprocessor:
     """Preprocessor base class.
 
@@ -227,10 +228,16 @@ class ReplayMemory:
         We recommend using a list as a ring buffer. Just track the
         index where the next sample should be inserted in the list.
         """
-        pass
 
-    def append(self, state, action, reward):
-        raise NotImplementedError('This method should be overridden')
+        #Note: Once a bounded length deque is full, when new items are added, a 
+        #corresponding number of items are discarded from the opposite end.
+        self.M = deque(maxlen=max_size)
+        self.max_size = max_size
+        self.window_length = window_length
+        
+
+    def append(self, state, action, reward, nstate):
+
 
     def end_episode(self, final_state, is_terminal):
         raise NotImplementedError('This method should be overridden')
