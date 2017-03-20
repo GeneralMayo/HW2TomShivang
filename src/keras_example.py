@@ -34,18 +34,49 @@ def main():
     model = create_model(784, 10)
     model.compile('adam', 'mse', metrics=['mae'])
 
+
+    model2 = create_model(784, 10)
+    model2.compile('adam', 'mse', metrics=['mae'])
+
+
     sess = K.get_session()
     writer = tf.summary.FileWriter('.', sess.graph)
 
     for i in range(10):
         mse_loss, mae_metric = model.train_on_batch(
             np.random.randn(10, 784), np.random.random_sample([10, 10]))
-        print(mse_loss, mae_metric)
+        #print(mse_loss, mae_metric)
 
         writer.add_summary(log_tb_value('mse_loss', mse_loss), i)
         writer.add_summary(log_tb_value('mae_metric', mae_metric), i)
 
-    model.save_weights('/tmp/keras_weights')
+    
+    weights = model.layers[1].get_weights()[0]
+
+    print(type(weights))
+    print(len(weights))
+    #print(len(weights[0]))
+    input()
+
+
+    #print(len(model.layers))
+    #for i in range(len(model.layers)):
+    #    weights = model.layers[i].get_weights()
+
+        #input()
+        #model2.layers[i].set_weights(weights)
+
+    model2.set_weights(model.get_weights())
+
+    #model.save_weights("weights")
+    #model2.load_weights("weights")
+    state = np.random.randn(1, 784)
+
+
+    print(model.predict(state))
+    print(model2.predict(state)) 
+
+    #model.save_weights('/tmp/keras_weights')
 
 
 if __name__ == '__main__':

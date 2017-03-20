@@ -114,25 +114,28 @@ def main():  # noqa: D103
     FRAMES_PER_STATE = 4
     INPUT_SHAPE = (84,84)
     GAMMA = .99
-    NUM_ITERATIONS = 100
-    TARGET_UPDATE_FREQ = 0
+    NUM_ITERATIONS = 10000
+    TARGET_UPDATE_FREQ =  100
     NUM_BURN_IN = 32
     TRAIN_FREQ = 0
     BATCH_SIZE = 32
     REPLAY_MEM_SIZE = 1000000
+    MAX_EPISODE_LEN = 1000
 
     model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
-                 model_name='linear q_network');
+                 model_name='linear q_network')
+    target = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
+                 model_name='linear q_network target')
     preprocessor = HistoryPreprocessor(FRAMES_PER_STATE-1)
     memory = ReplayMemory(REPLAY_MEM_SIZE,FRAMES_PER_STATE)
     policy = LinearDecayGreedyEpsilonPolicy(1,.05,10e6)
-    agent = DQNAgent(model,preprocessor,memory,policy,GAMMA,TARGET_UPDATE_FREQ,NUM_BURN_IN,TRAIN_FREQ,BATCH_SIZE,NUM_ACTIONS)
+    agent = DQNAgent(model,target,preprocessor,memory,policy,GAMMA,TARGET_UPDATE_FREQ,NUM_BURN_IN,TRAIN_FREQ,BATCH_SIZE,NUM_ACTIONS)
 
     #compile agent
     adam = Adam(lr=0.0001)
     loss = losses.mean_squared_error
     agent.compile(adam,loss)
-    agent.fit(env, NUM_ITERATIONS)
+    agent.fit(env, NUM_ITERATIONS, MAX_EPISODE_LEN)
 
 if __name__ == '__main__':
     main()
