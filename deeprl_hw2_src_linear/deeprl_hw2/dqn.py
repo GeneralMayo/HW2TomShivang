@@ -1,7 +1,6 @@
 import numpy as np
-#import matplotlib.pyplot as plt
-
-
+import matplotlib.pyplot as plt
+import time
 """Main DQN agent."""
 
 class DQNAgent:
@@ -100,7 +99,7 @@ class DQNAgent:
         #  q_values[sIdx] = self.q_network.predict(state[sIdx])
 
         #return q_values
-        
+
         return self.q_network.predict(state)
 
     def select_action(self, state, **kwargs):
@@ -148,7 +147,7 @@ class DQNAgent:
         """
         pass
 
-    def fit(self, env, num_iterations, max_episode_length=None):
+    def fit(self, env, num_iterations, max_episode_length=None,num_episodes=20):
         """Fit your model to the provided environment.
 
         Its a good idea to print out things like loss, average reward,
@@ -179,40 +178,64 @@ class DQNAgent:
         #get initial state
         self.preprocessor.process_state_for_network(env.reset())
         state = self.preprocessor.frames
-
-        allLoss = np.zeros(num_iterations)
-
+        Loss=np.zeros(num_iterations)
+        Rewards=np.zeros(int (num_iterations/10000))
         #iterate through environment samples
-        for iteration in range(num_iterations):
-          #select action
-          q_vals = self.calc_q_values(state)
-          action = self.policy.select_action(q_vals)
-          #get next state, reward, is terminal
-          (next_state, reward, is_terminal, info)= env.step(action)
-          self.preprocessor.process_state_for_network(next_state)
-          next_state = self.preprocessor.frames
-          #get target... should be 1x1xNUM_ACTIONS when no batches
-          target = q_vals 
-          if(is_terminal):
-            target[0][0][action] = reward
-          else:
-            next_qvals = self.calc_q_values(next_state)
-            target[0][0][action] = self.gamma*max(next_qvals[0][0]) + reward
+        for iterations in range(num_iterations):
+            #select action
+            q_vals = self.calc_q_values(state)
+            action = self.policy.select_action(q_vals)
+            #get next state, reward, is terminal
+            (next_state, reward, is_terminal, info)= env.step(action)
+            self.preprocessor.process_state_for_network(next_state)
+            next_state = self.preprocessor.frames
+            #get target... should be 1xNUM_ACTIONS when no batches
+            target = q_vals
+            if(is_terminal):
+                target[0][0][action] = reward
+            else:
+                next_qvals = self.calc_q_values(next_state)
+                target[0][0][action] = self.gamma*max(next_qvals[0][0]) + reward
 
-          #update weights
-          loss = self.q_network.train_on_batch(state,target)
-          allLoss[iteration] = loss
+            #update weights
+            loss = self.q_network.train_on_batch(state,target)
 
-          #update new state
-          if(is_terminal):
-            self.preprocessor.reset()
-            self.preprocessor.process_state_for_network(env.reset())
-            state = self.preprocessor.frames
-          else:
-            state = next_state
+            """
+            print("next_state Shape")
+            print(next_state.shape)
+            print("Qval Len = %d\n",len(q_vals[0][0]))
+            print("Qvals")
+            print(q_vals[0][0])
+            print("Action = %d",action)
+            print("Reward = %f",reward)
+            print("is_terminal = %r",is_terminal)
+            print("Target = %f",target)
+            print("loss = %f",loss)
+            print("\n\n")
+            """
+
+            #update new state
+            if(is_terminal):
+                self.preprocessor.process_state_for_network(env.reset())
+            else:
+                state = next_state
+            if (iterations%10000==0):
+                print ("At iteration : ", iterations)
+                Rewards[int (iterations/10000)]=self.evaluate(env,num_episodes)
+            Loss[iterations]=loss
+
+        fig = plt.figure()
+        plt.plot(Loss)
+        plt.ylabel('Loss function')
+        fig.savefig('Loss.png')
+        plt.clf()
+        plt.plot(Rewards)
+        plt.ylabel('Average Reward')
+        fig.savefig('reward.png')
 
 
-        
+
+
 
     def evaluate(self, env, num_episodes, max_episode_length=None):
         """Test your agent with a provided environment.
@@ -227,4 +250,21 @@ class DQNAgent:
         You can also call the render function here if you want to
         visually inspect your policy.
         """
-        pass
+        cumulative_reward=0
+        for episodes in range(num_episodes):
+            # get initial state
+            self.preprocessor.process_state_for_network(env.reset())
+            state = self.preprocessor.frames
+            while True:
+                q_vals = self.calc_q_values(state)
+                action=np.argmax(q_vals)
+                (next_state, reward, is_terminal, info)=env.step(action)
+                cumulative_reward=cumulative_reward+reward
+                self.preprocessor.process_state_for_network(next_state)
+                next_state = self.preprocessor.frames
+                state=next_state
+                if is_terminal:
+                    break
+        avg_reward=cumulative_reward/num_episodes
+
+        return avg_reward
