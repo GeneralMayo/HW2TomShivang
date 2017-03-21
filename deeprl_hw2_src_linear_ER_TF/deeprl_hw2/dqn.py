@@ -1,5 +1,5 @@
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 """Main DQN agent."""
@@ -159,6 +159,7 @@ class DQNAgent:
 
           #Note: q_t = 1x1xNUM_ACTIONS
           q_t = self.calc_q_values(s_t)
+          print (q_t.shape)
           targets[sampleIdx][:][:] = q_t
           if(is_terminal):
             targets[sampleIdx][0][a_t] = r_t
@@ -194,7 +195,7 @@ class DQNAgent:
           How long a single episode should last before the agent
           resets. Can help exploration.
         """
-        reward_samp = 1000
+        reward_samp = 10000
 
         #get initial state
         self.preprocessor.process_state_for_network(env.reset())
@@ -221,13 +222,17 @@ class DQNAgent:
 
             #store sample in memory
             self.memory.append(self.preprocessor.process_state_for_memory(s_t), a_t,
-           r_t, self.preprocessor.process_state_for_memory(s_t1),is_terminal)
+            r_t, self.preprocessor.process_state_for_memory(s_t1),is_terminal)
+
 
             #update policy
             if(iteration>self.num_burn_in):
               loss =self.update_policy()
               allLoss[iteration] = loss
-            
+
+            if (iteration % 1000 == 0):
+                print (iteration,)
+
             if (iteration % reward_samp == 0):
                 print("Start Evaluation")
                 cum_reward = self.evaluate(env, num_episodes, max_episode_length)
@@ -247,17 +252,17 @@ class DQNAgent:
         np.save("loss_linear_MR_TF", allLoss)
         np.save("reward_linear_MR_TF", rewards)
 
-        #fig = plt.figure()
-        #plt.plot(allLoss)
-        #plt.ylabel('Loss function')
-        #fig.savefig('Loss.png')
-        #plt.clf()
-        #plt.plot(rewards)
-        #plt.ylabel('Average Reward')
-        #fig.savefig('reward.png')
+        fig = plt.figure()
+        plt.plot(allLoss)
+        plt.ylabel('Loss function')
+        fig.savefig('Loss.png')
+        plt.clf()
+        plt.plot(rewards)
+        plt.ylabel('Average Reward')
+        fig.savefig('reward.png')
 
 
-    def evaluate(self, env, num_episodes, max_episode_length=None):
+    def evaluate(self, env, num_episodes, max_episode_length=100):
         """Test your agent with a provided environment.
         You shouldn't update your network parameters here. Also if you
         have any layers that vary in behavior between train/test time
@@ -267,25 +272,28 @@ class DQNAgent:
         You can also call the render function here if you want to
         visually inspect your policy.
         """
-        actions = np.zeros(self.num_actions)
         cumulative_reward = 0
+        actions = np.zeros(env.action_space.n)
         for episodes in range(num_episodes):
             # get initial state
+            self.preprocessor.reset()
             self.preprocessor.process_state_for_network(env.reset())
             state = self.preprocessor.frames
-            totalSteps = 0
-            while True:
+            steps = 0
+            while steps < max_episode_length:
                 q_vals = self.calc_q_values(state)
                 action = np.argmax(q_vals)
-                actions[action] +=1
+                actions[action] += 1
                 (next_state, reward, is_terminal, info) = env.step(action)
+                #reward = self.preprocessor.process_reward(reward)
                 cumulative_reward = cumulative_reward + reward
                 self.preprocessor.process_state_for_network(next_state)
                 next_state = self.preprocessor.frames
                 state = next_state
-                totalSteps+=1
-                if(is_terminal or totalSteps>max_episode_length):
+                steps = steps + 1
+                if is_terminal:
                     break
+        print (actions)
         avg_reward = cumulative_reward / num_episodes
-        print(actions)
+
         return avg_reward

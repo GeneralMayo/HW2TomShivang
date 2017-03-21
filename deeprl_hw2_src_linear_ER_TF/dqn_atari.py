@@ -122,14 +122,14 @@ def main():  # noqa: D103
     NUM_BURN_IN = 32
     TRAIN_FREQ = 0
     BATCH_SIZE = 32
-    REPLAY_MEM_SIZE = 1000000
+    REPLAY_MEM_SIZE = 1000
     MAX_EPISODE_LEN = 1000
 
     model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
                  model_name='linear q_network')
 
     plot_model(model, to_file='model.png')
-    input()
+
 
     target = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
                  model_name='linear q_network target')
