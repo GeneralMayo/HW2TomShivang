@@ -243,7 +243,6 @@ class DQNAgent:
             else:
                 s_t = s_t1
 
-        print("DONE")
         np.save("loss_linear_MR_TF", allLoss)
         np.save("reward_linear_MR_TF", rewards)
 

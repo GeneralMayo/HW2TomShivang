@@ -117,7 +117,7 @@ def main():  # noqa: D103
     FRAMES_PER_STATE = 4
     INPUT_SHAPE = (84,84)
     GAMMA = .99
-    NUM_ITERATIONS = 10000
+    NUM_ITERATIONS = 100000
     TARGET_UPDATE_FREQ =  100
     NUM_BURN_IN = 32
     TRAIN_FREQ = 0
@@ -128,8 +128,8 @@ def main():  # noqa: D103
     model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
                  model_name='linear q_network')
 
-    plot_model(model, to_file='model.png')
-    input()
+    #print(model.layers[0].get_weights()[0].shape)
+    #input()
 
     target = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
                  model_name='linear q_network target')

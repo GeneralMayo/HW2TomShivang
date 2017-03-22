@@ -52,7 +52,8 @@ def create_model(window, input_shape, num_actions,
     """
     model = Sequential()
     #add bais
-    model.add(Reshape((1,window*input_shape[0]*input_shape[1]),input_shape=(window,input_shape[0],input_shape[1])))
+    #model.add(Reshape((1,window*input_shape[0]*input_shape[1]),input_shape=(window,input_shape[0],input_shape[1])))
+    model.add(Flatten(input_shape=(window,input_shape[0],input_shape[1])))
     model.add(Dense(num_actions, init='normal', use_bias=True))
     return model
 
@@ -128,7 +129,7 @@ def main():  # noqa: D103
 
     #compile agent
     adam = Adam(lr=0.0001)
-    loss = losses.mean_squared_error
+    loss = mean_huber_loss#losses.mean_squared_error
     agent.compile(adam,loss)
     agent.fit(env, NUM_ITERATIONS)
 

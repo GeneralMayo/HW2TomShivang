@@ -1,5 +1,6 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import time
+#import matplotlib.pyplot as plt
 
 
 """Main DQN agent."""
@@ -184,7 +185,7 @@ class DQNAgent:
         allLoss = np.zeros(num_iterations)
 
         #iterate through environment samples
-        for iteration in range(num_iterations):
+        for iteration in range(num_iterations):            
             cum_reward=0
             #select action
             q_vals = self.calc_q_values(state)
@@ -196,13 +197,15 @@ class DQNAgent:
             #get target... should be 1x1xNUM_ACTIONS when no batches
             target = q_vals
             if(is_terminal):
-                target[0][0][action] = reward
+                target[0][action] = reward
             else:
                 next_qvals = self.calc_q_values(next_state)
-                target[0][0][action] = self.gamma*max(next_qvals[0][0]) + reward
+                target[0][action] = self.gamma*max(next_qvals[0]) + reward
 
             #update weights
-            loss = self.q_network.train_on_batch(state,target)
+
+            #loss = self.q_network.train_on_batch(state,target)
+            loss = 0
 
             if (iteration % reward_samp== 0):
                 cum_reward=self.evaluate(env, num_episodes)
@@ -218,14 +221,14 @@ class DQNAgent:
             else:
                 state = next_state
 
-        fig = plt.figure()
-        plt.plot(allLoss)
-        plt.ylabel('Loss function')
-        fig.savefig('Loss.png')
-        plt.clf()
-        plt.plot(rewards)
-        plt.ylabel('Average Reward')
-        fig.savefig('reward.png')
+        #fig = plt.figure()
+        #plt.plot(allLoss)
+        #plt.ylabel('Loss function')
+        #fig.savefig('Loss.png')
+        #plt.clf()
+        #plt.plot(rewards)
+        #plt.ylabel('Average Reward')
+        #fig.savefig('reward.png')
 
 
     def evaluate(self, env, num_episodes, max_episode_length=None):
