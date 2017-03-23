@@ -51,12 +51,12 @@ def main():
         writer.add_summary(log_tb_value('mae_metric', mae_metric), i)
 
     
-    weights = model.layers[1].get_weights()[0]
+    #weights = model.layers[1].get_weights()[0]
 
-    print(type(weights))
-    print(len(weights))
+    #print(type(weights))
+    #print(len(weights))
     #print(len(weights[0]))
-    input()
+    #input()
 
 
     #print(len(model.layers))
@@ -66,12 +66,14 @@ def main():
         #input()
         #model2.layers[i].set_weights(weights)
 
-    model2.set_weights(model.get_weights())
+    #model2.set_weights(model.get_weights())
 
     #model.save_weights("weights")
     #model2.load_weights("weights")
     state = np.random.randn(1, 784)
 
+    model.save_weights("model1Weights")
+    model2.load_weights("model1Weights")
 
     print(model.predict(state))
     print(model2.predict(state)) 
