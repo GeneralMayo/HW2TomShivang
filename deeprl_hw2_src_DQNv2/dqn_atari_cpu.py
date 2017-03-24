@@ -136,12 +136,10 @@ def main():  # noqa: D103
     NUM_BURN_IN = 1000
     TRAIN_FREQ = 0
     BATCH_SIZE = 32
-    REPLAY_MEM_SIZE = 32
+    REPLAY_MEM_SIZE = 1000
     REPLAY_START_SIZE=1000
     MAX_EPISODE_LEN = 1000
     HELD_OUT_STATES_SIZE=1000
-    IS_DOUBLE_Q = True
-
     model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
                  model_name='linear q_network')
 
@@ -154,14 +152,21 @@ def main():  # noqa: D103
     memory = ReplayMemory(REPLAY_MEM_SIZE,FRAMES_PER_STATE)
     held_out_states=ReplayMemory(HELD_OUT_STATES_SIZE,FRAMES_PER_STATE)
     policy = LinearDecayGreedyEpsilonPolicy(1,.05,int(1e6))
-    agent = DQNAgent(model,target,preprocessor,memory,policy,held_out_states,HELD_OUT_STATES_SIZE,
-        GAMMA,TARGET_UPDATE_FREQ,NUM_BURN_IN,TRAIN_FREQ,BATCH_SIZE,REPLAY_START_SIZE,NUM_ACTIONS,IS_DOUBLE_Q)
+    agent = DQNAgent(model,target,preprocessor,memory,policy,held_out_states,HELD_OUT_STATES_SIZE,GAMMA,TARGET_UPDATE_FREQ,NUM_BURN_IN,TRAIN_FREQ,BATCH_SIZE,REPLAY_START_SIZE,NUM_ACTIONS)
 
     #compile agent
     adam = Adam(lr=0.0001)
-    loss = losses.mean_squared_error
-    agent.compile(adam,mean_huber_loss)
+    loss = mean_huber_loss
+    agent.compile(adam,loss)
     agent.fit(env, NUM_ITERATIONS, MAX_EPISODE_LEN)
+
+    model_json = model.to_json()
+    with open("model.json", "w") as json_file:
+        json_file.write(model_json)
+    # serialize weights to HDF5
+    model.save_weights("model.h5")
+    print("Saved model to disk")
+
 
 if __name__ == '__main__':
     main()
