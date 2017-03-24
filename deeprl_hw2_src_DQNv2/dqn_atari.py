@@ -18,6 +18,11 @@ from keras import losses
 #import pydot
 import graphviz
 from keras.utils import plot_model
+from keras.backend.tensorflow_backend import set_session
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.8
+set_session(tf.Session(config=config))
+
 
 import deeprl_hw2 as tfrl
 from deeprl_hw2.dqn import DQNAgent
@@ -138,7 +143,7 @@ def main():  # noqa: D103
     BATCH_SIZE = 32
     REPLAY_MEM_SIZE = 1000000
     REPLAY_START_SIZE=50000
-    MAX_EPISODE_LEN = 10000
+    MAX_EPISODE_LEN = 1000
     HELD_OUT_STATES_SIZE = 1000
 
     model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
