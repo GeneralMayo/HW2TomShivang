@@ -166,7 +166,7 @@ class Preprocessor:
             #to the sample object taken from the replay memory
             #isn't returned
             newSamples.append(
-                Sample(states[0:3],
+                Sample(states[0:4],
                 sample.a_t, 
                 sample.r_t, 
                 states[1:5],
