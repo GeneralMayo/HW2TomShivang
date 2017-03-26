@@ -1,0 +1,36 @@
+Training Starts
+Start Evaluation
+
+[  3154.      0.  15022.     20.      0.      0.]
+At iteration : 0 , Average Reward = 0.0 , Average Q value = 1.13249377092 , Loss = 2.74622
+
+Updating target Q network
+Start Evaluation
+
+[ 3378.   837.  2400.  2254.  2688.  2100.]
+At iteration : 10000 , Average Reward = 102.25 , Average Q value = 1.08599779129 , Loss = 0.189559
+
+Updating target Q network
+Start Evaluation
+
+[ 3574.  1158.  4671.   249.  1798.  1816.]
+At iteration : 20000 , Average Reward = 131.75 , Average Q value = 1.08373439153 , Loss = 0.0668428
+
+Updating target Q network
+Start Evaluation
+
+[ 1447.  2227.  4329.  1730.   851.  2510.]
+At iteration : 30000 , Average Reward = 129.25 , Average Q value = 1.08933305422 , Loss = 0.0213064
+
+Updating target Q network
+Start Evaluation
+
+[ 4407.  1036.  2153.   726.  2030.  3478.]
+At iteration : 40000 , Average Reward = 134.25 , Average Q value = 1.07260526021 , Loss = 0.0452962
+
+Updating target Q network
+Start Evaluation
+
+[ 5761.   349.  2126.   381.   193.  3096.]
+At iteration : 50000 , Average Reward = 125.0 , Average Q value = 1.05961831729 , Loss = 0.0461518
+

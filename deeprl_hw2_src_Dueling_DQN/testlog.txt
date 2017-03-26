@@ -1,0 +1,9 @@
+Training Starts
+Start Evaluation
+At iteration : 0 , Average Reward = 91.25 , Average Q value = 0.555154821078 , Loss = 1.6766
+Training Starts
+Start Evaluation
+At iteration : 0 , Average Reward = 198.25 , Average Q value = 1.37699714979 , Loss = 3.51308
+Training Starts
+Start Evaluation
+At iteration : 0 , Average Reward = 147.75 , Average Q value = 0.093639553388 , Loss = 2.01241
