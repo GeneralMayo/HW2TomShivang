@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+import time
 
 """Main DQN agent."""
 
@@ -212,8 +212,8 @@ class DQNAgent:
           How long a single episode should last before the agent
           resets. Can help exploration.
         """
-        reward_samp = 10000
-
+        reward_samp = 1000
+        time1 = time.time()
         #initial state for replay memory filling
         self.preprocessor.process_state_for_network(env.reset())
         s_t = self.preprocessor.frames
@@ -245,8 +245,8 @@ class DQNAgent:
 
         #init metric vectors (to eventually plot)
         allLoss=np.zeros(num_iterations)
-        rewards=np.zeros(int (num_iterations/reward_samp))
-        avg_qvals_iter=np.zeros(int (num_iterations/reward_samp))
+        rewards=np.zeros(int(np.ceil(num_iterations/reward_samp)))
+        avg_qvals_iter=np.zeros(int(np.ceil(num_iterations/reward_samp)))
 
         #iterate through environment samples
         for iteration in range(num_iterations):
@@ -281,6 +281,7 @@ class DQNAgent:
                     f.write("Training Starts\n")
 
             if (iteration % reward_samp == 0):
+                print (iteration, time1-time.time())
                 print("Start Evaluation\n")
                 with open('testlog.txt', "a") as f:
                     f.write("Start Evaluation\n")

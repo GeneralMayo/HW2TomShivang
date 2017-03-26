@@ -18,6 +18,7 @@ from keras import losses
 #import pydot
 import graphviz
 from keras.utils import plot_model
+import keras.backend.tensorflow_backend as ktf
 
 import deeprl_hw2 as tfrl
 from deeprl_hw2.dqn import DQNAgent
@@ -25,6 +26,11 @@ from deeprl_hw2.objectives import mean_huber_loss
 from deeprl_hw2.preprocessors import HistoryPreprocessor
 from deeprl_hw2.policy import LinearDecayGreedyEpsilonPolicy
 from deeprl_hw2.core import ReplayMemory
+
+def get_session(gpu_fraction=0.333):
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_fraction,
+                                allow_growth=True)
+    return tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
 
 def create_model(window, input_shape, num_actions,
@@ -55,7 +61,9 @@ def create_model(window, input_shape, num_actions,
     -------
     keras.models.Model
       The Q-model.
-    """
+    
+"""
+
     print("Now we build the model")
     model = Sequential()
     model.add(Convolution2D(32, 8, 8, subsample=(4, 4), init="normal",
@@ -112,6 +120,7 @@ def get_output_folder(parent_dir, env_name):
 
 
 def main():  # noqa: D103
+    ktf.set_session(get_session())
     parser = argparse.ArgumentParser(description='Run DQN on Atari Breakout')
     parser.add_argument('--env', default='Breakout-v0', help='Atari env name')
     parser.add_argument(
@@ -138,7 +147,7 @@ def main():  # noqa: D103
     BATCH_SIZE = 32
     REPLAY_MEM_SIZE = 1000000
     REPLAY_START_SIZE=50000
-    MAX_EPISODE_LEN = 10000
+    MAX_EPISODE_LEN = 1000
     HELD_OUT_STATES_SIZE = 1000
 
     model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
