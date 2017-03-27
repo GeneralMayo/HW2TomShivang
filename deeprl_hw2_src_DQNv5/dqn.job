@@ -24,13 +24,13 @@ module load python3
 
 # switch to pylon1
 # NOTE: Files in this directory are deleted when 30 days old
-pushd $PYLON5
+pushd $PYLON5/deepRL/deeprl_hw2_src_DQN_results
 
 # turn on the virtualenv
 source $PYLON5/deepRL/myVE/bin/activate
 
 # run the experiment script
-python $PYLON2/deepRL/deeprl_hw2_src_DQNv2/dqn_atari.py --env SpaceInvaders-v0
+python $PYLON5/deepRL/deeprl_hw2_src_DQNv5/dqn_atari.py --env SpaceInvaders-v0
 
 # turn off the virtualenv
 deactivate
