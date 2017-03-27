@@ -52,7 +52,9 @@ class DQNAgent:
                  replay_start_size,
                  num_actions,
                  network_type,
-                 reward_samp):
+                 reward_samp,
+                 held_out_states,
+                 held_out_states_size):
         self.q_network = q_network
         self.target_q_network = target_q_network
         self.preprocessor = preprocessor
@@ -67,6 +69,8 @@ class DQNAgent:
         self.network_type = network_type
         self.reward_samp = reward_samp
         self.update_policy = None
+        self.held_out_states = held_out_states
+        self.held_out_states_size = held_out_states_size
 
     def compile(self, optimizer, loss_func):
         """Setup all of the TF graph variables/ops.
@@ -226,6 +230,7 @@ class DQNAgent:
 
         return loss
 
+    """
     def save_weights_on_interval(self, curiter, totaliter):
         if (curiter == 0):
             self.q_network.save_weights("weights0")
@@ -235,8 +240,25 @@ class DQNAgent:
             self.q_network.save_weights("weights2")
         elif (curiter == totaliter - 1):
             self.q_network.save_weights("weights3")
+    """
 
-    def populate_replay_memory(self, env):
+    def save_weights_on_interval(self, curiter, totaliter):
+        #function to save model and weights at different stages of training
+        #I am doing it every 500k so that we can decide later whether we want the results till 1.5M or 3M 
+        #If it doesn't show improvement in the first 1.5M but shows promise 
+        # we can let it run for more.
+        if (curiter % 500000==0):
+            stage=int(curiter/500000)
+            modelstr=self.network_type+"model"+str(stage)+".json"
+            weightstr=self.network_type+"model"+str(stage)+".h5"
+            model_json = self.q_network.to_json()
+            with open(modelstr, "w") as json_file:
+                json_file.write(model_json)
+            # serialize weights to HDF5
+            self.q_network.save_weights(weightstr)
+
+
+    def populate_replay_memory_and_held_out_states(self, env):
         print("Populating replay mem ...")
         #initial state for replay memory filling
         self.history.process_state_for_network(env.reset())
@@ -244,6 +266,8 @@ class DQNAgent:
 
         # populate replay memory
         for iter in range(self.replay_start_size):
+            if(iter%1000 == 0):
+                print("Replay Mem Iter: "+str(iter))
             # select action
             a_t = env.action_space.sample()
             
@@ -251,10 +275,16 @@ class DQNAgent:
             (image, r_t, is_terminal, info) = env.step(a_t)
             self.history.process_state_for_network(image)
             s_t1=self.history.frames
+
+            #store held out states to be used for Q value evaluation
+            if iter<self.held_out_states_size:
+                self.held_out_states.append(self.preprocessor.process_state_for_memory(s_t), a_t,
+                               r_t, self.preprocessor.process_state_for_memory(s_t1), is_terminal)
             
             # store sample in memory
-            self.memory.append(self.preprocessor.process_state_for_memory(s_t), a_t,
-                               r_t, self.preprocessor.process_state_for_memory(s_t1), is_terminal)
+            if(self.network_type != "Linear"):
+                self.memory.append(self.preprocessor.process_state_for_memory(s_t), a_t,
+                        r_t, self.preprocessor.process_state_for_memory(s_t1), is_terminal)
             
             # update new state
             if (is_terminal):
@@ -316,8 +346,7 @@ class DQNAgent:
         """
         
         #populate replay memory if network has one
-        if(self.memory != None):
-            self.populate_replay_memory(env)
+        self.populate_replay_memory_and_held_out_states(env)
 
         #set update policy function
         self.set_update_policy_function()
@@ -373,14 +402,14 @@ class DQNAgent:
                     f.write("Training Starts\n")
 
             if (iteration % self.reward_samp == 0):
-                print("Iteration: "+str(iteration))
+                print("Iteration: "+ str(iteration))
                 """
                 print("Start Evaluation\n")
                 with open('testlog.txt', "a") as f:
                     f.write("Start Evaluation\n")
                 cum_reward, avg_qvals= self.evaluate(env, num_episodes,max_episode_length)
-                rewards[int(iteration / reward_samp)] = cum_reward
-                avg_qvals_iter[int(iteration / reward_samp)] = avg_qvals
+                rewards[int(iteration / self.reward_samp)] = cum_reward
+                avg_qvals_iter[int(iteration / self.reward_samp)] = avg_qvals
                 prtscn="At iteration : " + str(iteration) + " , Average Reward = " + str(cum_reward)+ " , Average Q value = " +str(avg_qvals)+" , Loss = " +str(loss)+"\n"
                 print (prtscn)
                 with open('testlog.txt', "a") as f:
@@ -395,21 +424,22 @@ class DQNAgent:
                 s_t = s_t1
 
         print("DONE TRAINING")
-        np.save("loss_linear_MR_TF", allLoss)
-        np.save("reward_linear_MR_TF", rewards)
+        np.save(self.network_type+"loss_linear_MR_TF", allLoss)
+        np.save(self.network_type+"reward_linear_MR_TF", rewards)
+        np.save(self.network_type+"avg_qvals_iter", avg_qvals_iter)
 
-        fig = plt.figure()
-        plt.plot(allLoss)
-        plt.ylabel('Loss function')
-        fig.savefig('Loss.png')
-        plt.clf()
-        plt.plot(rewards)
-        plt.ylabel('Average Reward')
-        fig.savefig('reward.png')
-        plt.clf()
-        plt.plot(avg_qvals_iter)
-        plt.ylabel('Average Q value')
-        fig.savefig('q_value.png')
+        #fig = plt.figure()
+        #plt.plot(allLoss)
+        #plt.ylabel('Loss function')
+        #fig.savefig('Loss.png')
+        #plt.clf()
+        #plt.plot(rewards)
+        #plt.ylabel('Average Reward')
+        #fig.savefig('reward.png')
+        #plt.clf()
+        #plt.plot(avg_qvals_iter)
+        #plt.ylabel('Average Q value')
+        #fig.savefig('q_value.png')
 
 
     def evaluate(self, env, num_episodes,max_episode_length):
@@ -427,27 +457,33 @@ class DQNAgent:
         no_op_max=30
 
         for episodes in range(num_episodes):
+            
+            steps = 0
+            q_vals_eval=np.zeros(self.held_out_states_size)
+            held_out=list(self.held_out_states.M) # convert the deque into a list of samples
+            #print ((held_out))
+            for i in range(self.held_out_states_size):                
+                state = held_out[i].states[0:4]  #get the initial state from the sample
+                state = self.preprocessor.process_state_for_network(state) #conversion into float
+                q_vals = self.calc_q_values(state)              
+                q_vals_eval[i]=q_vals_eval[i]+max(q_vals[0])  #take the max over actions and add to the current state
+                
             # get initial state
             self.history.reset()
             self.history.process_state_for_network(env.reset())
             state = self.history.frames
-            steps = 0
-            q_vals_eval=np.zeros(no_op_max)
             for i in range(no_op_max):
-                state = self.preprocessor.process_state_for_network(state)
-                q_vals = self.calc_q_values(state)
-                (next_image, reward, is_terminal, info) = env.step(0)
-                self.history.process_state_for_network(next_image)
+                (next_state, reward, is_terminal, info) = env.step(0)
+                self.history.process_state_for_network(next_state)
                 next_state = self.history.frames
                 actions[0] += 1
                 steps = steps + 1
-                q_vals_eval[i]=q_vals_eval[i]+max(q_vals[0])
                 if is_terminal:
-                    self.history.process_state_for_network(env.reset())
-                    state = self.history.frames
+                    state=env.reset()
                 else:
                     state=next_state
-
+                  
+            
             while steps < max_episode_length:
                 state = self.preprocessor.process_state_for_network(state)
                 q_vals = self.calc_q_values(state)

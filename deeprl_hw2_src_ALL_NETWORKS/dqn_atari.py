@@ -216,6 +216,7 @@ def main():
     REPLAY_START_SIZE = 50000
     MAX_EPISODE_LEN = 100
     REWARD_SAMPLE = 1000
+    HELD_OUT_STATES_SIZE=1000
     """
 
     FRAMES_PER_STATE = 4
@@ -225,9 +226,10 @@ def main():
     TARGET_UPDATE_FREQ =  1000
     BATCH_SIZE = 32
     REPLAY_MEM_SIZE = 1000000
-    REPLAY_START_SIZE = 10000
-    MAX_EPISODE_LEN = 100
+    REPLAY_START_SIZE = 1000
+    MAX_EPISODE_LEN = 10
     REWARD_SAMPLE = 1000
+    HELD_OUT_STATES_SIZE = 1000
 
 
     #retuns a list of models ie: [Online,None] or [Online,Target] or [OnlineA,OnlineB]
@@ -238,8 +240,10 @@ def main():
         memory = ReplayMemory(REPLAY_MEM_SIZE,FRAMES_PER_STATE)
     else:
         memory = None
+    held_out_states = ReplayMemory(HELD_OUT_STATES_SIZE,FRAMES_PER_STATE)
     policy = LinearDecayGreedyEpsilonPolicy(1,.05,int(1e6))
-    agent = DQNAgent(models[0],models[1],preprocessor,history,memory,policy,GAMMA,TARGET_UPDATE_FREQ,BATCH_SIZE,REPLAY_START_SIZE,NUM_ACTIONS,NETWORK_TYPE,REWARD_SAMPLE)
+    agent = DQNAgent(models[0],models[1],preprocessor,history,memory,policy,GAMMA,TARGET_UPDATE_FREQ,
+        BATCH_SIZE,REPLAY_START_SIZE,NUM_ACTIONS,NETWORK_TYPE,REWARD_SAMPLE,held_out_states,HELD_OUT_STATES_SIZE)
 
     #compile agent
     adam = Adam(lr=0.0001)
@@ -247,11 +251,11 @@ def main():
     agent.compile(adam,loss)
     agent.fit(env, NUM_ITERATIONS, MAX_EPISODE_LEN)
 
-    model_json = model.to_json()
-    with open("model.json", "w") as json_file:
+    model_json = models[0].to_json()
+    with open(NETWORK_TYPE+"model.json", "w") as json_file:
         json_file.write(model_json)
     # serialize weights to HDF5
-    model.save_weights("model.h5")
+    models[0].save_weights(NETWORK_TYPE+"model.h5")
     print("Saved model to disk")
 
 
