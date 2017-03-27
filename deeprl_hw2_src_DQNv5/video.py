@@ -23,15 +23,16 @@ from deeprl_hw2.objectives import mean_huber_loss
 from deeprl_hw2.preprocessors import HistoryPreprocessor
 from deeprl_hw2.policy import LinearDecayGreedyEpsilonPolicy
 from deeprl_hw2.core import ReplayMemory
+from deeprl_hw2.core import Preprocessor
 
 def main():
     # load json and create model
-    json_file = open('/home/shivang/Desktop/HW2TomShivang/deeprl_hw2_src_DQNv2/model.json', 'r')
+    json_file = open('model0.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     model = model_from_json(loaded_model_json)
     # load weights into new model
-    model.load_weights("model.h5")
+    model.load_weights("model0.h5")
     print("Loaded model from disk")
 
     parser = argparse.ArgumentParser(description='Run DQN on Atari Breakout')
@@ -53,11 +54,11 @@ def main():
     FRAMES_PER_STATE = 4
     MAX_EPISODE_LEN = 1000
 
-    preprocessor = HistoryPreprocessor(FRAMES_PER_STATE - 1)
+    history = HistoryPreprocessor(FRAMES_PER_STATE - 1)
 
     policy = LinearDecayGreedyEpsilonPolicy(1, .05, int(1e6))
 
-    preprocessor = HistoryPreprocessor(FRAMES_PER_STATE-1)
+    preprocessor = Preprocessor()
     # evaluate loaded model on test data
     #compile agent
     adam = Adam(lr=0.0001)
@@ -81,49 +82,50 @@ def main():
 
     for episodes in range(num_episodes):
         if episodes<4:
-            env = wrappers.Monitor(env1, '/home/shivang/Desktop/HW2TomShivang/Video_evaluation/' + str(episodes) + '/',
-                               force=True)
+            env = wrappers.Monitor(env1, str(episodes) + '/',force=True)
         else:
             env=env1
-        # get initial state
-        preprocessor.reset()
-        preprocessor.process_state_for_network(env.reset())
-        state = preprocessor.frames
+            
         steps = 0
-        q_vals_eval = np.zeros(no_op_max)
+        
+        # get initial state
+        history.reset()
+        history.process_state_for_network(env.reset())
+        state = history.frames
         for i in range(no_op_max):
-            q_vals = model.predict(state)
             (next_state, reward, is_terminal, info) = env.step(0)
-            preprocessor.process_state_for_network(next_state)
-            next_state = preprocessor.frames
+            history.process_state_for_network(next_state)
+            next_state = history.frames
             actions[0] += 1
             steps = steps + 1
-            q_vals_eval[i] = q_vals_eval[i] + max(q_vals[0])
             if is_terminal:
-                state = env.reset()
+                state=env.reset()
             else:
-                state = next_state
+                state=next_state
+
 
         while steps < max_episode_length:
+            state = preprocessor.process_state_for_network(state)
             q_vals = model.predict(state)
             action = np.argmax(q_vals[0])
             actions[action] += 1
-            (next_state, reward, is_terminal, info) = env.step(action)
-            # reward = self.preprocessor.process_reward(reward)
+            #print (action)
+            (next_image, reward, is_terminal, info) = env.step(action)
             cumulative_reward = cumulative_reward + reward
-            preprocessor.process_state_for_network(next_state)
-            next_state = preprocessor.frames
+            history.process_state_for_network(next_image)
+            next_state = history.frames
             state = next_state
             steps = steps + 1
             if is_terminal:
+                print (steps)
                 break
 
-    print (actions)
-    avg_reward = cumulative_reward / num_episodes
-    avg_qval = np.mean(q_vals_eval) / num_episodes
+        print (actions)
+        avg_reward = cumulative_reward / num_episodes
+       
+      
     print (avg_reward)
-    print (avg_qval)
-
+  
 
 if __name__ == '__main__':
     main()
