@@ -131,14 +131,14 @@ def main():  # noqa: D103
     FRAMES_PER_STATE = 4
     INPUT_SHAPE = (84,84)
     GAMMA = .99
-    NUM_ITERATIONS = 1000000
-    TARGET_UPDATE_FREQ =  100000
+    NUM_ITERATIONS = 3000000
+    TARGET_UPDATE_FREQ =  10000
     NUM_BURN_IN = 32
     TRAIN_FREQ = 0
     BATCH_SIZE = 32
     REPLAY_MEM_SIZE = 1000000
-    REPLAY_START_SIZE = 32
-    MAX_EPISODE_LEN = 100
+    REPLAY_START_SIZE = 50000
+    MAX_EPISODE_LEN = 1000
     HELD_OUT_STATES_SIZE=1000
     model = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS,
                  model_name='linear q_network')
@@ -161,12 +161,6 @@ def main():  # noqa: D103
     agent.compile(adam,loss)
     agent.fit(env, NUM_ITERATIONS, MAX_EPISODE_LEN)
 
-    model_json = model.to_json()
-    with open("model.json", "w") as json_file:
-        json_file.write(model_json)
-    # serialize weights to HDF5
-    model.save_weights("model.h5")
-    print("Saved model to disk")
 
 
 if __name__ == '__main__':
