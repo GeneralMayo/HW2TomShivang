@@ -230,18 +230,7 @@ class DQNAgent:
 
         return loss
 
-    """
-    def save_weights_on_interval(self, curiter, totaliter):
-        if (curiter == 0):
-            self.q_network.save_weights("weights0")
-        elif (curiter == int(totaliter / 3)):
-            self.q_network.save_weights("weights1")
-        elif (curiter == int((totaliter / 3)) * 2):
-            self.q_network.save_weights("weights2")
-        elif (curiter == totaliter - 1):
-            self.q_network.save_weights("weights3")
-    """
-
+    
     def save_weights_on_interval(self, curiter, totaliter):
         #function to save model and weights at different stages of training
         #I am doing it every 500k so that we can decide later whether we want the results till 1.5M or 3M 
@@ -266,13 +255,14 @@ class DQNAgent:
 
         # populate replay memory
         for iter in range(self.replay_start_size):
-            if(iter%1000 == 0):
+            if(iter%10000 == 0):
                 print("Replay Mem Iter: "+str(iter))
             # select action
             a_t = env.action_space.sample()
             
             # get next state, reward, is terminal
             (image, r_t, is_terminal, info) = env.step(a_t)
+            r_t=self.preprocessor.process_reward(r_t)
             self.history.process_state_for_network(image)
             s_t1=self.history.frames
 
@@ -379,6 +369,7 @@ class DQNAgent:
          
             #get next state, reward, is terminal
             (image, r_t, is_terminal, info) = env.step(a_t)
+            r_t=self.preprocessor.process_reward(r_t)
             self.history.process_state_for_network(image)
             s_t1 = self.history.frames
 
@@ -402,8 +393,8 @@ class DQNAgent:
                     f.write("Training Starts\n")
 
             if (iteration % self.reward_samp == 0):
-                print("Iteration: "+ str(iteration))
-                """
+                #print("Iteration: "+ str(iteration))
+               
                 print("Start Evaluation\n")
                 with open('testlog.txt', "a") as f:
                     f.write("Start Evaluation\n")
@@ -414,7 +405,7 @@ class DQNAgent:
                 print (prtscn)
                 with open('testlog.txt', "a") as f:
                     f.write(prtscn)
-                """
+                
             #update new state
             if (is_terminal):
                 self.history.reset()
@@ -428,18 +419,18 @@ class DQNAgent:
         np.save(self.network_type+"reward_linear_MR_TF", rewards)
         np.save(self.network_type+"avg_qvals_iter", avg_qvals_iter)
 
-        #fig = plt.figure()
-        #plt.plot(allLoss)
-        #plt.ylabel('Loss function')
-        #fig.savefig('Loss.png')
-        #plt.clf()
-        #plt.plot(rewards)
-        #plt.ylabel('Average Reward')
-        #fig.savefig('reward.png')
-        #plt.clf()
-        #plt.plot(avg_qvals_iter)
-        #plt.ylabel('Average Q value')
-        #fig.savefig('q_value.png')
+        fig = plt.figure()
+        plt.plot(allLoss)
+        plt.ylabel('Loss function')
+        fig.savefig('Loss.png')
+        plt.clf()
+        plt.plot(rewards)
+        plt.ylabel('Average Reward')
+        fig.savefig('reward.png')
+        plt.clf()
+        plt.plot(avg_qvals_iter)
+        plt.ylabel('Average Q value')
+        fig.savefig('q_value.png')
 
 
     def evaluate(self, env, num_episodes,max_episode_length):

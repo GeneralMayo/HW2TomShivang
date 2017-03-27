@@ -186,7 +186,7 @@ def get_output_folder(parent_dir, env_name):
 
 def main():
     parser = argparse.ArgumentParser(description='Run DQN on Atari Breakout')
-    parser.add_argument('--env', default='Breakout-v0', help='Atari env name')
+    parser.add_argument('--env', default='SpaceInvaders-v0', help='Atari env name')
     parser.add_argument('-o', '--output', default='atari-v0', help='Directory to save data to')
     parser.add_argument('--seed', default=0, type=int, help='Random seed')
     parser.add_argument('--type', default="DQN", help='Type of network to train. ()')
@@ -205,20 +205,23 @@ def main():
     NUM_ACTIONS = env.action_space.n  
     
     #make dqn agent
-    """
+    
     FRAMES_PER_STATE = 4
     INPUT_SHAPE = (84,84)
     GAMMA = .99
-    NUM_ITERATIONS = 1000000
-    TARGET_UPDATE_FREQ =  100000
+    if (NETWORK_TYPE=="Linear" or NETWORK_TYPE=="LinearERTF" or NETWORK_TYPE=="DoubleLinear"):
+        NUM_ITERATIONS = 5000000
+    else:
+        NUM_ITERATIONS = 3000000
+    TARGET_UPDATE_FREQ =  10000
     BATCH_SIZE = 32
     REPLAY_MEM_SIZE = 1000000
     REPLAY_START_SIZE = 50000
-    MAX_EPISODE_LEN = 100
-    REWARD_SAMPLE = 1000
+    MAX_EPISODE_LEN = 1000
+    REWARD_SAMPLE = 10000
     HELD_OUT_STATES_SIZE=1000
+    
     """
-
     FRAMES_PER_STATE = 4
     INPUT_SHAPE = (84,84)
     GAMMA = .99
@@ -227,11 +230,11 @@ def main():
     BATCH_SIZE = 32
     REPLAY_MEM_SIZE = 1000000
     REPLAY_START_SIZE = 1000
-    MAX_EPISODE_LEN = 10
+    MAX_EPISODE_LEN = 100
     REWARD_SAMPLE = 1000
     HELD_OUT_STATES_SIZE = 1000
 
-
+    """
     #retuns a list of models ie: [Online,None] or [Online,Target] or [OnlineA,OnlineB]
     models = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS, NETWORK_TYPE)
     history = HistoryPreprocessor(FRAMES_PER_STATE-1)
@@ -251,11 +254,6 @@ def main():
     agent.compile(adam,loss)
     agent.fit(env, NUM_ITERATIONS, MAX_EPISODE_LEN)
 
-    model_json = models[0].to_json()
-    with open(NETWORK_TYPE+"model.json", "w") as json_file:
-        json_file.write(model_json)
-    # serialize weights to HDF5
-    models[0].save_weights(NETWORK_TYPE+"model.h5")
     print("Saved model to disk")
 
 

@@ -130,22 +130,3 @@ def main():
 if __name__ == '__main__':
     main()
 
-
-"""
-import gym
-from gym import wrappers
-env1 = gym.make('Breakout-v0')
-#env = wrappers.Monitor(env, '/home/shivang/Desktop/HW2TomShivang/Video_evaluation/',force=True)
-for i_episode in range(5):
-    env = wrappers.Monitor(env1, '/home/shivang/Desktop/HW2TomShivang/Video_evaluation/'+str(i_episode)+'/', force=True)
-    observation = env.reset()
-    for t in range(1000):
-        env.render()
-        #print(observation)
-        action = env.action_space.sample()
-        observation, reward, done, info = env.step(action)
-        if done:
-            print("Episode finished after {} timesteps".format(t+1))
-            break
-
-"""
