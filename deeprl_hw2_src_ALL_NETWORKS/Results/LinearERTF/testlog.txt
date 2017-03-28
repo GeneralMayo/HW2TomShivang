@@ -1,0 +1,151 @@
+Training Starts
+Start Evaluation
+At iteration : 0 , Average Reward = 238.25 , Average Q value = 20.2200669006 , Loss = 59.1432
+Start Evaluation
+At iteration : 10000 , Average Reward = 76.5 , Average Q value = 21.8123880722 , Loss = 7.24303
+Start Evaluation
+At iteration : 20000 , Average Reward = 137.5 , Average Q value = 23.1990589111 , Loss = 5.04869
+Start Evaluation
+At iteration : 30000 , Average Reward = 167.5 , Average Q value = 24.0752241913 , Loss = 2.99975
+Start Evaluation
+At iteration : 40000 , Average Reward = 171.5 , Average Q value = 25.1021762726 , Loss = 4.88569
+Start Evaluation
+At iteration : 50000 , Average Reward = 135.0 , Average Q value = 25.9175867691 , Loss = 3.60088
+Start Evaluation
+At iteration : 60000 , Average Reward = 180.5 , Average Q value = 26.7982177673 , Loss = 3.25637
+Start Evaluation
+At iteration : 70000 , Average Reward = 142.0 , Average Q value = 27.6191336945 , Loss = 3.71634
+Start Evaluation
+At iteration : 80000 , Average Reward = 167.75 , Average Q value = 28.0606759781 , Loss = 3.30405
+Start Evaluation
+At iteration : 90000 , Average Reward = 138.75 , Average Q value = 28.5724383057 , Loss = 3.32253
+Start Evaluation
+At iteration : 100000 , Average Reward = 222.25 , Average Q value = 29.7224096329 , Loss = 3.35319
+Start Evaluation
+At iteration : 110000 , Average Reward = 184.0 , Average Q value = 30.1826381348 , Loss = 3.54923
+Start Evaluation
+At iteration : 120000 , Average Reward = 185.5 , Average Q value = 30.8350660858 , Loss = 3.20459
+Start Evaluation
+At iteration : 130000 , Average Reward = 225.5 , Average Q value = 31.6767284698 , Loss = 3.22137
+Start Evaluation
+At iteration : 140000 , Average Reward = 143.5 , Average Q value = 32.106768927 , Loss = 6.26704
+Start Evaluation
+At iteration : 150000 , Average Reward = 30.75 , Average Q value = 32.9252389343 , Loss = 2.43144
+Start Evaluation
+At iteration : 160000 , Average Reward = 165.5 , Average Q value = 33.6646432526 , Loss = 3.77924
+Start Evaluation
+At iteration : 170000 , Average Reward = 109.75 , Average Q value = 34.0321969162 , Loss = 3.51476
+Start Evaluation
+At iteration : 180000 , Average Reward = 121.25 , Average Q value = 35.1030285889 , Loss = 2.88388
+Start Evaluation
+At iteration : 190000 , Average Reward = 147.0 , Average Q value = 35.5257185577 , Loss = 4.61575
+Start Evaluation
+At iteration : 200000 , Average Reward = 160.25 , Average Q value = 35.9639399628 , Loss = 3.06631
+Start Evaluation
+At iteration : 210000 , Average Reward = 131.0 , Average Q value = 36.2983947266 , Loss = 3.38243
+Start Evaluation
+At iteration : 220000 , Average Reward = 163.75 , Average Q value = 36.830690567 , Loss = 2.57534
+Start Evaluation
+At iteration : 230000 , Average Reward = 168.0 , Average Q value = 37.2940797607 , Loss = 2.69811
+Start Evaluation
+At iteration : 240000 , Average Reward = 168.5 , Average Q value = 37.4796835693 , Loss = 1.8758
+Start Evaluation
+At iteration : 250000 , Average Reward = 105.0 , Average Q value = 38.3746363434 , Loss = 3.27466
+Start Evaluation
+At iteration : 260000 , Average Reward = 134.75 , Average Q value = 38.4632816376 , Loss = 3.25319
+Start Evaluation
+At iteration : 270000 , Average Reward = 261.0 , Average Q value = 39.5071862061 , Loss = 3.77158
+Start Evaluation
+At iteration : 280000 , Average Reward = 148.75 , Average Q value = 40.2578288727 , Loss = 2.31654
+Start Evaluation
+At iteration : 290000 , Average Reward = 201.0 , Average Q value = 40.2309123444 , Loss = 3.1872
+Start Evaluation
+At iteration : 300000 , Average Reward = 121.25 , Average Q value = 41.2012098969 , Loss = 2.47403
+Start Evaluation
+At iteration : 310000 , Average Reward = 130.0 , Average Q value = 41.1796474365 , Loss = 2.51582
+Start Evaluation
+At iteration : 320000 , Average Reward = 93.0 , Average Q value = 41.7449847351 , Loss = 2.29144
+Start Evaluation
+At iteration : 330000 , Average Reward = 189.25 , Average Q value = 42.741197998 , Loss = 3.36587
+Start Evaluation
+At iteration : 340000 , Average Reward = 107.75 , Average Q value = 43.6260569794 , Loss = 2.78189
+Start Evaluation
+At iteration : 350000 , Average Reward = 140.25 , Average Q value = 44.1110475983 , Loss = 3.61576
+Start Evaluation
+At iteration : 360000 , Average Reward = 171.75 , Average Q value = 44.7119897491 , Loss = 2.36422
+Start Evaluation
+At iteration : 370000 , Average Reward = 145.25 , Average Q value = 45.3546362366 , Loss = 2.83018
+Start Evaluation
+At iteration : 380000 , Average Reward = 178.75 , Average Q value = 45.704306723 , Loss = 2.13324
+Start Evaluation
+At iteration : 390000 , Average Reward = 69.25 , Average Q value = 45.7662209198 , Loss = 2.42438
+Start Evaluation
+At iteration : 400000 , Average Reward = 160.0 , Average Q value = 46.3834706146 , Loss = 2.71844
+Start Evaluation
+At iteration : 410000 , Average Reward = 136.0 , Average Q value = 46.5335654785 , Loss = 3.8647
+Start Evaluation
+At iteration : 420000 , Average Reward = 140.25 , Average Q value = 46.9450915283 , Loss = 2.29335
+Start Evaluation
+At iteration : 430000 , Average Reward = 203.0 , Average Q value = 47.0848128876 , Loss = 1.92875
+Start Evaluation
+At iteration : 440000 , Average Reward = 175.25 , Average Q value = 47.462259201 , Loss = 1.62388
+Start Evaluation
+At iteration : 450000 , Average Reward = 93.25 , Average Q value = 48.2080451172 , Loss = 2.78992
+Start Evaluation
+At iteration : 460000 , Average Reward = 259.75 , Average Q value = 48.2324165253 , Loss = 2.66781
+Start Evaluation
+At iteration : 470000 , Average Reward = 167.0 , Average Q value = 49.0494626068 , Loss = 2.33542
+Start Evaluation
+At iteration : 480000 , Average Reward = 238.75 , Average Q value = 49.8905448059 , Loss = 3.11508
+Start Evaluation
+At iteration : 490000 , Average Reward = 104.0 , Average Q value = 50.0959017944 , Loss = 2.10579
+Start Evaluation
+At iteration : 500000 , Average Reward = 175.0 , Average Q value = 50.5723340607 , Loss = 2.71065
+Start Evaluation
+At iteration : 510000 , Average Reward = 112.5 , Average Q value = 50.8263731232 , Loss = 2.03052
+Start Evaluation
+At iteration : 520000 , Average Reward = 247.75 , Average Q value = 51.3304298431 , Loss = 2.69849
+Start Evaluation
+At iteration : 530000 , Average Reward = 90.0 , Average Q value = 51.8483079041 , Loss = 2.14512
+Start Evaluation
+At iteration : 540000 , Average Reward = 97.25 , Average Q value = 52.296828299 , Loss = 2.72417
+Start Evaluation
+At iteration : 550000 , Average Reward = 193.75 , Average Q value = 52.6188829712 , Loss = 1.82143
+Start Evaluation
+At iteration : 560000 , Average Reward = 87.0 , Average Q value = 52.415126889 , Loss = 2.2917
+Start Evaluation
+At iteration : 570000 , Average Reward = 116.0 , Average Q value = 52.8852610626 , Loss = 2.21684
+Start Evaluation
+At iteration : 580000 , Average Reward = 158.5 , Average Q value = 52.6467042267 , Loss = 2.2256
+Start Evaluation
+At iteration : 590000 , Average Reward = 207.75 , Average Q value = 52.8975481628 , Loss = 1.61754
+Start Evaluation
+At iteration : 600000 , Average Reward = 147.25 , Average Q value = 52.6541150879 , Loss = 1.67406
+Start Evaluation
+At iteration : 610000 , Average Reward = 181.25 , Average Q value = 53.0433615601 , Loss = 2.56943
+Start Evaluation
+At iteration : 620000 , Average Reward = 257.0 , Average Q value = 53.2808727753 , Loss = 2.11532
+Start Evaluation
+At iteration : 630000 , Average Reward = 242.75 , Average Q value = 54.0157178284 , Loss = 1.90154
+Start Evaluation
+At iteration : 640000 , Average Reward = 117.25 , Average Q value = 53.8924207489 , Loss = 2.16368
+Start Evaluation
+At iteration : 650000 , Average Reward = 121.5 , Average Q value = 54.2061003906 , Loss = 2.58141
+Start Evaluation
+At iteration : 660000 , Average Reward = 193.0 , Average Q value = 53.6744538452 , Loss = 1.82582
+Start Evaluation
+At iteration : 670000 , Average Reward = 179.0 , Average Q value = 54.1535398041 , Loss = 2.25701
+Start Evaluation
+At iteration : 680000 , Average Reward = 99.25 , Average Q value = 54.0856554169 , Loss = 2.71779
+Start Evaluation
+At iteration : 690000 , Average Reward = 170.5 , Average Q value = 53.7374756256 , Loss = 7.77118
+Start Evaluation
+At iteration : 700000 , Average Reward = 156.25 , Average Q value = 53.9282582153 , Loss = 2.41912
+Start Evaluation
+At iteration : 710000 , Average Reward = 202.5 , Average Q value = 54.3585891571 , Loss = 2.69082
+Start Evaluation
+At iteration : 720000 , Average Reward = 141.5 , Average Q value = 54.1295419952 , Loss = 1.83956
+Start Evaluation
+At iteration : 730000 , Average Reward = 126.0 , Average Q value = 54.7488770081 , Loss = 2.03858
+Start Evaluation
+At iteration : 740000 , Average Reward = 208.75 , Average Q value = 54.7216528839 , Loss = 1.90091
