@@ -27,12 +27,12 @@ from deeprl_hw2.core import Preprocessor
 
 def main():
     # load json and create model
-    json_file = open('model0.json', 'r')
+    json_file = open('DQNmodel2.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     model = model_from_json(loaded_model_json)
     # load weights into new model
-    model.load_weights("model0.h5")
+    model.load_weights("DQNmodel2.h5")
     print("Loaded model from disk")
 
     parser = argparse.ArgumentParser(description='Run DQN on Atari Breakout')
@@ -76,7 +76,7 @@ def main():
     You can also call the render function here if you want to
     visually inspect your policy.
     """
-    cumulative_reward = 0
+    cumulative_reward = np.zeros(num_episodes)
     actions = np.zeros(env1.action_space.n)
     no_op_max = 30
 
@@ -111,7 +111,7 @@ def main():
             actions[action] += 1
             #print (action)
             (next_image, reward, is_terminal, info) = env.step(action)
-            cumulative_reward = cumulative_reward + reward
+            cumulative_reward[episodes] = cumulative_reward[episodes] + reward
             history.process_state_for_network(next_image)
             next_state = history.frames
             state = next_state
@@ -121,10 +121,10 @@ def main():
                 break
 
         print (actions)
-        avg_reward = cumulative_reward / num_episodes
+        avg_reward = np.mean(cumulative_reward) 
        
       
-    print (avg_reward)
+    print (cumulative_reward,avg_reward)
   
 
 if __name__ == '__main__':
