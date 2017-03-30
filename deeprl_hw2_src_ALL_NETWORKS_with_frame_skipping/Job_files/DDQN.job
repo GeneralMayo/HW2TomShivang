@@ -1,0 +1,39 @@
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -p GPU-shared
+#SBATCH --ntasks-per-node 4
+#SBATCH --gres=gpu:k80:1
+#SBATCH -t 40:00:00
+
+# this will request 2 CPU cores, an one k80 on a shared GPU node
+# if the job is still running after 10 hours, it will be automatically killed.
+
+set -x  # echo commands to stdout
+#set -u  # throw an error if unset variable referenced
+set -e  # exit on error
+
+# helper vars
+PYLON5=/pylon5/$(id -gn)/shivangs
+PYLON2=/pylon2/$(id -gn)/shivangs
+
+module load cuda/8.0
+
+# select which python module you want 2/3
+module load python3
+# module load python2
+
+# switch to pylon1
+# NOTE: Files in this directory are deleted when 30 days old
+pushd $PYLON5/deepRL/deeprl_hw2_src_ALL_NETWORKS_with_frame_skipping/Results/DDQN/
+
+# turn on the virtualenv
+source $PYLON5/deepRL/myVE/bin/activate
+
+# run the experiment script
+python $PYLON5/deepRL/deeprl_hw2_src_ALL_NETWORKS_with_frame_skipping/dqn_atari.py --env SpaceInvaders-v0 --type DDQN
+
+# turn off the virtualenv
+deactivate
+
+# go back to the original dir
+popd

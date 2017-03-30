@@ -405,7 +405,11 @@ class DQNAgent:
                 print (prtscn)
                 with open('testlog.txt', "a") as f:
                     f.write(prtscn)
-                
+            
+            if (iteration % 500000 == 0):
+                np.save(self.network_type+"loss_linear_MR_TF", allLoss)
+                np.save(self.network_type+"reward_linear_MR_TF", rewards)
+                np.save(self.network_type+"avg_qvals_iter", avg_qvals_iter)
             #update new state
             if (is_terminal):
                 self.history.reset()
@@ -415,9 +419,7 @@ class DQNAgent:
                 s_t = s_t1
 
         print("DONE TRAINING")
-        np.save(self.network_type+"loss_linear_MR_TF", allLoss)
-        np.save(self.network_type+"reward_linear_MR_TF", rewards)
-        np.save(self.network_type+"avg_qvals_iter", avg_qvals_iter)
+        
 
         fig = plt.figure()
         plt.plot(allLoss)

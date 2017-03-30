@@ -220,7 +220,7 @@ def main():
     MAX_EPISODE_LEN = 1000
     REWARD_SAMPLE = 10000
     HELD_OUT_STATES_SIZE=1000
-    
+    RESUME_TRAINING=1
     """
     FRAMES_PER_STATE = 4
     INPUT_SHAPE = (84,84)
@@ -237,6 +237,15 @@ def main():
     """
     #retuns a list of models ie: [Online,None] or [Online,Target] or [OnlineA,OnlineB]
     models = create_model(FRAMES_PER_STATE, INPUT_SHAPE, NUM_ACTIONS, NETWORK_TYPE)
+    
+    if RESUME_TRAINING==1:
+        policy = LinearDecayGreedyEpsilonPolicy(0.5,.05,int(1e6))
+        weightstr="saved_weights/"+NETWORK_TYPE+"model2.h5"
+        models[0].load_weights(weightstr)
+        REPLAY_START_SIZE = 500000
+    else:
+        policy = LinearDecayGreedyEpsilonPolicy(1,.05,int(1e6))
+        
     history = HistoryPreprocessor(FRAMES_PER_STATE-1)
     preprocessor = Preprocessor()
     if(NETWORK_TYPE != "Linear"):
@@ -244,7 +253,7 @@ def main():
     else:
         memory = None
     held_out_states = ReplayMemory(HELD_OUT_STATES_SIZE,FRAMES_PER_STATE)
-    policy = LinearDecayGreedyEpsilonPolicy(1,.05,int(1e6))
+    
     agent = DQNAgent(models[0],models[1],preprocessor,history,memory,policy,GAMMA,TARGET_UPDATE_FREQ,
         BATCH_SIZE,REPLAY_START_SIZE,NUM_ACTIONS,NETWORK_TYPE,REWARD_SAMPLE,held_out_states,HELD_OUT_STATES_SIZE)
 
